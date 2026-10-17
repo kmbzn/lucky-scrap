@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
+import { waitForDraw } from "@/lib/draw";
 import { sessionClient, adminClient } from "@/lib/server";
-import { recognize, renderHandwriting, strokesSchema } from "@/lib/handwriting";
+import { strokesSchema } from "@/lib/handwriting";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 const line = z.object({
@@ -17,7 +18,6 @@ const schemas = {
   submit: z.object({
     id: z.uuid(),
     strokes: strokesSchema,
-    image: z.string().max(400000).startsWith("data:image/png;base64,"),
   }),
   craft: z.object({
     itemId: z.number().int().min(24).max(63),
@@ -93,7 +93,6 @@ export async function GET(request: Request) {
         inventory: results[1].data,
         discoveries: results[2].data,
         offers: results[3].data,
-        ocrConfigured: Boolean(process.env.GOOGLE_VISION_API_KEY?.trim()),
       },
       { headers: { "Cache-Control": "no-store" } },
     );
@@ -158,8 +157,6 @@ export async function POST(req: Request) {
       return data;
     }
     if (action === "submit") {
-      if (!process.env.GOOGLE_VISION_API_KEY?.trim())
-        throw new Error("인증 기능 설정 필요: 필기 인식 API 키가 없습니다");
       const p = schemas.submit.parse(payload);
       const { data: receipt, error: receiptError } = await admin
         .from("game_requests")
@@ -173,17 +170,10 @@ export async function POST(req: Request) {
           throw new Error("중복 요청 내용이 다릅니다");
         return NextResponse.json(receipt.result);
       }
-      const { image, hash } = await renderHandwriting(p.strokes);
-      const challenge = await mutate("claim", { id: p.id, hash }, randomUUID());
-      let verified = false;
-      try {
-        verified = await recognize(image, challenge.letter);
-      } catch (e) {
-        await mutate("draw", { id: p.id, verified: false }, randomUUID());
-        throw e;
-      }
+      await mutate("claim", { id: p.id }, randomUUID());
+      await waitForDraw();
       return NextResponse.json(
-        await mutate("draw", { id: p.id, verified }, key),
+        await mutate("draw", { id: p.id, verified: true }, key),
       );
     }
     return NextResponse.json(await mutate(action, payload));

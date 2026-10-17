@@ -3,11 +3,7 @@ import assert from "node:assert/strict";
 import sharp from "sharp";
 import { readFile, readdir } from "node:fs/promises";
 import { items, baseMaterials, maxCraft } from "../lib/items";
-import {
-  renderHandwriting,
-  strokesSchema,
-  recognize,
-} from "../lib/handwriting";
+import { strokesSchema } from "../lib/handwriting";
 test("64 items, 23 natural weights total 1000, 40 exact recipes", () => {
   assert.equal(items.length, 64);
   assert.equal(items.filter((i) => i.weight > 0).length, 23);
@@ -74,35 +70,14 @@ test("original file preserved and 64 crops retain exact RGBA pixels", async () =
         assert.equal(crop.data[i], 0);
   }
 });
-test("handwriting rejects empty, instantaneous, out-of-bounds and backwards events", () => {
-  for (const v of [
-    [],
-    [
-      [
-        { x: 1, y: 1, t: 0 },
-        { x: 2, y: 2, t: 0 },
-      ],
-    ],
-    [[{ x: 400, y: 1, t: 0 }]],
-  ])
-    assert.equal(strokesSchema.safeParse(v).success, false);
-});
-test("server render ignores timestamps for replay fingerprint and missing OCR never grants", async () => {
-  const stroke = Array.from({ length: 10 }, (_, i) => ({
-    x: 20 + i * 10,
-    y: 20 + i * 5,
-    t: i * 40,
-  }));
-  const a = await renderHandwriting([stroke]);
-  const b = await renderHandwriting([
-    stroke.map((p) => ({ ...p, t: p.t + 100 })),
-  ]);
-  assert.equal(a.hash, b.hash);
-  const prev = process.env.GOOGLE_VISION_API_KEY;
-  delete process.env.GOOGLE_VISION_API_KEY;
-  try {
-    await assert.rejects(recognize(a.image, "가"), /인증 기능 설정 필요/);
-  } finally {
-    if (prev) process.env.GOOGLE_VISION_API_KEY = prev;
-  }
+test("any drawing including one tap is accepted; empty or out-of-bounds input rejected", () => {
+  assert.equal(
+    strokesSchema.safeParse([[{ x: 10, y: 10, t: 0 }]]).success,
+    true,
+  );
+  assert.equal(strokesSchema.safeParse([]).success, false);
+  assert.equal(
+    strokesSchema.safeParse([[{ x: 400, y: 10, t: 0 }]]).success,
+    false,
+  );
 });

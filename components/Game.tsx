@@ -49,7 +49,6 @@ type State = {
   inventory: { item_id: number; quantity: string }[];
   discoveries: { item_id: number }[];
   offers: Offer[];
-  ocrConfigured: boolean;
 };
 const tabs = [
   { name: "뽑기" as Tab, Icon: Flower2 },
@@ -107,6 +106,7 @@ export default function Game() {
     } | null>(null),
     [reward, setReward] = useState<number | null>(null),
     [writing, setWriting] = useState(false),
+    [drawing, setDrawing] = useState(false),
     [showOffer, setShowOffer] = useState(false),
     [give, setGive] = useState<Line[]>([]),
     [want, setWant] = useState<Line[]>([]),
@@ -127,7 +127,9 @@ export default function Game() {
     ).toLocaleString("ko-KR");
   const discovered = new Set(state?.discoveries.map((r) => r.item_id) || []),
     collection = [...discovered].filter((i) => i > 0).length;
-  const name = (id: number) => itemName(id, discovered);
+  const visibleItems =
+    tab === "뽑기" ? new Set(items.map((item) => item.id)) : discovered;
+  const name = (id: number) => itemName(id, visibleItems);
   const refresh = useCallback(async () => {
     if (!configured) return;
     try {
@@ -263,8 +265,6 @@ export default function Game() {
   async function newChallenge() {
     if (!requireUser()) return;
     await run(async () => {
-      if (!state?.ocrConfigured)
-        throw new Error("인증 기능 설정 필요 · 필기 인식 API를 연결해 주세요");
       setChallenge(await api("challenge", {}));
       setReward(null);
       setWriting(true);
@@ -276,19 +276,27 @@ export default function Game() {
     strokes.current = [];
   }
   async function submit() {
-    if (!challenge || !canvas.current) return;
+    if (!challenge || !canvas.current || busy || drawing) return;
+    if (!strokes.current.length) {
+      setNotice("점이나 선을 하나 이상 그려 주세요");
+      return;
+    }
     await run(async () => {
-      const result = await api("submit", {
-        id: challenge.id,
-        strokes: strokes.current,
-        image: canvas.current!.toDataURL(),
-      });
-      setChallenge(null);
-      setWriting(false);
-      if (result.verified) {
-        setReward(result.itemId);
-        await refresh();
-      } else setNotice("글자가 일치하지 않아요. 새 문제로 다시 도전해 주세요.");
+      setDrawing(true);
+      try {
+        const result = await api("submit", {
+          id: challenge.id,
+          strokes: strokes.current,
+        });
+        setChallenge(null);
+        setWriting(false);
+        if (result.verified) {
+          setReward(result.itemId);
+          await refresh();
+        }
+      } finally {
+        setDrawing(false);
+      }
     });
   }
   function pointer(e: React.PointerEvent<HTMLCanvasElement>, start = false) {
@@ -313,6 +321,11 @@ export default function Game() {
         point.t = 0;
       }
       strokes.current.push([point]);
+      const ctx = c.getContext("2d")!;
+      ctx.fillStyle = "#244c38";
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+      ctx.fill();
       active.current = true;
       return;
     }
@@ -359,12 +372,12 @@ export default function Game() {
     setFilter("전체");
   }
   return (
-    <DiscoveryContext.Provider value={discovered}>
+    <DiscoveryContext.Provider value={visibleItems}>
       <main className="phone">
         <header className="header">
           <button className="brand" onClick={() => changeTab("뽑기")}>
             <span className="brand-mark">
-              <Leaf size={20} />
+              <Art id={2} size={27} reveal />
             </span>
             <span>Lucky Scrap</span>
           </button>
@@ -418,17 +431,15 @@ export default function Game() {
                     </div>
                     <span className="badge">횟수 제한 없음</span>
                   </div>
-                  <p>한글 한 글자를 쓰면 자연물 하나를 얻어요.</p>
+                  <p>자유롭게 그린 뒤 5초를 기다리면 자연물 하나를 얻어요.</p>
                   <button
                     className="primary"
                     disabled={busy}
                     onClick={() => void newChallenge()}
                   >
-                    <Sparkles size={18} />한 글자 쓰고 뽑기
+                    <Sparkles size={18} />
+                    그림 그리고 뽑기
                   </button>
-                  {!state.ocrConfigured && (
-                    <small className="config-note">인증 기능 설정 필요</small>
-                  )}
                 </section>
               )}
               <div className="section-title">
@@ -440,7 +451,7 @@ export default function Game() {
                     id: 2,
                     n: "01",
                     title: "발견하기",
-                    text: "한 글자를 쓰고\n자연물을 만나요",
+                    text: "자유롭게 그리고\n자연물을 받아요",
                   },
                   {
                     id: 48,
@@ -936,7 +947,7 @@ export default function Game() {
             </section>
           </div>
         )}
-        {writing && challenge && (
+        {writing && challenge && !drawing && (
           <div className="overlay">
             <section className="modal writing-modal">
               <button
@@ -951,11 +962,8 @@ export default function Game() {
               >
                 <X />
               </button>
-              <div className="eyebrow">한글 자필 인증</div>
-              <h2>
-                <em>{challenge.letter}</em>를 써 주세요
-              </h2>
-              <p>아래 칸에 손가락으로 직접 써 주세요.</p>
+              <h2>자유롭게 그려 주세요</h2>
+              <p>어떤 글씨나 그림도 괜찮아요. 점 하나도 가능해요.</p>
               <canvas
                 ref={canvas}
                 width={320}
@@ -968,27 +976,45 @@ export default function Game() {
                 onPointerCancel={() => {
                   active.current = false;
                 }}
-                aria-label={`${challenge.letter} 손글씨 입력 영역`}
+                aria-label="자유롭게 그리는 입력 영역"
               />
               <div className="canvas-toolbar">
                 <button onClick={clearCanvas} disabled={busy}>
                   <Trash2 size={16} />
                   지우기
                 </button>
-                <small>5분 내 제출 · 실제 필기 인식</small>
+                <small>글자 판정 없이 뽑기 · 5초 대기</small>
               </div>
               <button
                 className="primary"
                 disabled={busy}
                 onClick={() => void submit()}
               >
-                {busy ? "글씨를 확인하고 있어요…" : "확인하고 자연물 받기"}
+                그림 제출하고 뽑기
                 <Check size={18} />
               </button>
             </section>
           </div>
         )}
-        {reward !== null && (
+        {drawing && (
+          <div className="overlay">
+            <section
+              className="modal draw-wait"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="draw-spinner">
+                <RefreshCw size={50} />
+              </div>
+              <h2>자연물을 뽑고 있어요</h2>
+              <p>5초 후 결과가 나타납니다.</p>
+              <div className="draw-progress">
+                <span />
+              </div>
+            </section>
+          </div>
+        )}
+        {reward !== null && !drawing && (
           <div className="overlay">
             <section className="modal reward">
               <h2>아이템 획득</h2>
@@ -1034,7 +1060,7 @@ export default function Game() {
               </div>
               <h2>{name(detail)}</h2>
               <p>
-                {!discovered.has(detail)
+                {!visibleItems.has(detail)
                   ? "아직 획득하지 않은 아이템입니다."
                   : detail === 0
                     ? "공식적인 방법으로는 얻을 수 없는 비밀 아이템."
