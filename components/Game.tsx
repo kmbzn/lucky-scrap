@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { items, icon, maxCraft } from "@/lib/items";
 import { itemName, matchesItem } from "@/lib/discovery";
+import { itemDescriptions } from "@/lib/item-descriptions";
 import { browserClient, configured } from "@/lib/supabase";
 import type { Stroke } from "@/lib/handwriting";
 type Tab = "뽑기" | "조합" | "장터" | "도감" | "내정보";
@@ -1021,14 +1022,16 @@ export default function Game() {
               </div>
               <h2>{name(detail)}</h2>
               <p>
-                {!visibleItems.has(detail)
-                  ? "아직 획득하지 않은 아이템입니다."
-                  : detail === 0
-                    ? "공식적인 방법으로는 얻을 수 없는 비밀 아이템."
-                    : detail < 24
-                      ? `손글씨 뽑기에서 만나는 자연물 · 확률 ${items[detail].weight / 10}%`
-                      : "재료를 모아 작업실에서 만들 수 있어요."}
+                {visibleItems.has(detail)
+                  ? itemDescriptions[detail]
+                  : "아직 획득하지 않은 아이템입니다."}
               </p>
+              {visibleItems.has(detail) && detail > 0 && detail < 24 && (
+                <div className="row">
+                  <span>뽑기 확률</span>
+                  <strong>{items[detail].weight / 10}%</strong>
+                </div>
+              )}
               <div className="row">
                 <span>현재 보유</span>
                 <strong>{amount(detail)}개</strong>

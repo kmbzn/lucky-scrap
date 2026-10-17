@@ -137,3 +137,5 @@ GitHub 저장소 `kmbzn/lucky-scrap`의 main에 push하면 연결된 Vercel이 �
 Vercel에서 `서버 설정 필요`가 나오면 Supabase Settings → API Keys → Secret keys의 `sb_secret_…` 값을 Vercel Settings → Environment Variables의 **SUPABASE_SECRET_KEY**, Production 범위에 등록하고 Redeploy하세요. 브라우저용 publishable 키를 대신 넣지 마세요. 기존 **SUPABASE_SERVICE_ROLE_KEY**도 지원하며, 두 값이 있으면 SUPABASE_SECRET_KEY를 우선합니다. 비밀 키는 GitHub·브라우저·채팅에 넣지 않습니다.
 
 메인 페이지의 플레이 방법과 우승 트로피 조합법 안내는 제거했습니다. 하단 아이템 목록은 **001 나뭇가지, 002 나뭇잎, 003 나무껍질, 004 볏짚, 005 목화**만 순서대로 공개합니다. 트로피 레시피는 조합 화면의 기존 제작법으로 유지합니다.
+
+아이템별 설정 설명은 `lib/item-descriptions.ts`에서 000~063 순서로 관리합니다. 특정 나무·광산·계곡 등의 출처와 소품의 특징을 담은 짧은 설명이며 게임 수치에는 영향을 주지 않습니다. 조합·도감에서 미발견 아이템은 이름·이미지와 함께 해당 설명도 숨깁니다.
