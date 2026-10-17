@@ -93,7 +93,7 @@ export async function GET(request: Request) {
         inventory: results[1].data,
         discoveries: results[2].data,
         offers: results[3].data,
-        ocrConfigured: Boolean(process.env.GOOGLE_VISION_API_KEY),
+        ocrConfigured: Boolean(process.env.GOOGLE_VISION_API_KEY?.trim()),
       },
       { headers: { "Cache-Control": "no-store" } },
     );
@@ -158,7 +158,7 @@ export async function POST(req: Request) {
       return data;
     }
     if (action === "submit") {
-      if (!process.env.GOOGLE_VISION_API_KEY)
+      if (!process.env.GOOGLE_VISION_API_KEY?.trim())
         throw new Error("인증 기능 설정 필요: 필기 인식 API 키가 없습니다");
       const p = schemas.submit.parse(payload);
       const { data: receipt, error: receiptError } = await admin

@@ -207,3 +207,19 @@ GitHub의 main에 push하면 연결된 Vercel 프로젝트가 자동 배포합�
 ### Kakao KOE205 대응
 
 로그인 요청은 `queryParams: { scope: "profile_nickname" }`로 닉네임만 요청합니다. Supabase의 Kakao provider는 `scopes` 옵션을 쓰면 기본 이메일·사진 항목에 추가하므로 단수 `scope` query parameter로 기본값을 덮어씁니다. 실제 Supabase 인가 리다이렉트에서 요청 scope가 `profile_nickname`만 남는 것을 확인했습니다. Kakao Developers에서 **카카오 로그인 → 동의항목 → 프로필 정보(닉네임)**을 사용하도록 설정하고, Supabase의 **Allow users without an email**을 켜야 합니다. 이메일·프로필 사진 동의는 이 게임에 필요하지 않습니다.
+
+## 미발견 아이템과 필기 API 설정
+
+아이템 공개 여부는 현재 수량이 아닌 영구 `item_discoveries` 기록으로 판단합니다. 아직 획득하지 않은 아이템은 조합 결과·재료, 도감, 상세, 아이콘 대체 텍스트와 검색에서 이름 대신 `???`로 표시합니다. 미발견 아이콘도 `???`로 가리고, 장터 항목을 구분할 때는 아이템 ID를 사용합니다. 한 번 획득한 뒤 사용·거래한 아이템은 이름과 아이콘이 계속 공개됩니다. 보상 획득 화면은 새 아이템을 즉시 공개합니다.
+
+실제 필기 API 활성화 절차:
+
+1. Google Cloud Console에서 사용할 프로젝트를 선택하고 결제 계정을 연결합니다.
+2. API 및 서비스 → 라이브러리에서 **Cloud Vision API**를 활성화합니다.
+3. 사용자 인증 정보에서 API 키를 발급하고 API 제한을 **Cloud Vision API**로 지정합니다. 호출은 서버에서 하므로 브라우저 HTTP 리퍼러 제한을 적용하면 서버 요청이 거부될 수 있습니다.
+4. Vercel → lucky-scrap → Settings → Environment Variables에 **GOOGLE_VISION_API_KEY**를 Production 범위로 입력합니다. 아이템을 지급할 서버 권한을 위해 **SUPABASE_SERVICE_ROLE_KEY**도 필요합니다. 두 값 모두 NEXT_PUBLIC 접두사 없이 서버 환경에만 저장합니다.
+5. Production 배포를 **Redeploy**한 후 로그인 → 자필 인증 → 아이템 지급을 확인합니다. 키가 없거나 OCR이 실패하면 보상을 지급하지 않습니다.
+
+Cloud Vision 호출은 해당 Google Cloud 프로젝트의 과금·할당량 정책을 따릅니다. 설정 오류는 키 유효성, API 비활성화, 결제 비활성화, 권한, 할당량별로 안내합니다. 외부 HTTP 응답을 모의한 단위 테스트는 요청 형식·정답 비교·오류 처리를 검증하며 실제 손글씨 인식 성공을 검증한 것은 아닙니다. 실제 서비스 키가 없어 Google Cloud Vision 실호출은 아직 미검증입니다.
+
+공식 문서: https://docs.cloud.google.com/vision/docs/handwriting
