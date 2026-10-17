@@ -443,6 +443,75 @@ test(
           }
         },
       );
+      await t.test(
+        "profile avatars require discoveries and only update the current user",
+        async () => {
+          const client = await pool.connect();
+          try {
+            await client.query("begin");
+            await client.query(
+              "insert into item_discoveries(user_id,item_id) values($1,1) on conflict do nothing",
+              [users[0]],
+            );
+            await client.query(
+              "delete from item_discoveries where user_id=$1 and item_id=2",
+              [users[0]],
+            );
+            await client.query(
+              "select set_config('request.jwt.claim.sub',$1,true)",
+              [users[0]],
+            );
+            await client.query("set local role authenticated");
+            await client.query("select set_avatar(1::smallint)");
+            assert.equal(
+              (
+                await client.query(
+                  "select avatar_item_id from profiles where id=$1",
+                  [users[0]],
+                )
+              ).rows[0].avatar_item_id,
+              1,
+            );
+            assert.equal(
+              (
+                await client.query(
+                  "select avatar_item_id from profiles where id=$1",
+                  [users[1]],
+                )
+              ).rows[0].avatar_item_id,
+              null,
+            );
+            await client.query("savepoint rejected_avatar");
+            await assert.rejects(
+              client.query("select set_avatar(2::smallint)"),
+              /도감에 등록한/,
+            );
+            await client.query("rollback to savepoint rejected_avatar");
+            await client.query("select set_avatar(null::smallint)");
+            assert.equal(
+              (
+                await client.query(
+                  "select avatar_item_id from profiles where id=$1",
+                  [users[0]],
+                )
+              ).rows[0].avatar_item_id,
+              null,
+            );
+            await client.query(
+              "select set_config('request.jwt.claim.sub','',true)",
+            );
+            await client.query("savepoint no_session");
+            await assert.rejects(
+              client.query("select set_avatar(1::smallint)"),
+              /로그인이 필요/,
+            );
+            await client.query("rollback to savepoint no_session");
+          } finally {
+            await client.query("rollback");
+            client.release();
+          }
+        },
+      );
     } finally {
       await pool.end();
       await root.query(`drop database ${name} with (force)`);

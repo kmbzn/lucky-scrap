@@ -90,5 +90,5 @@ test("craft availability follows the loaded database recipe instead of bundled c
   catalog[38].recipe = { "17": 5 };
   assert.equal(maxCraft(38, { "17": 4 }, catalog), 0);
   assert.equal(maxCraft(38, { "17": 10 }, catalog), 2);
-  assert.equal(maxCraft(38, { "17": 4 }), 2);
+  assert.equal(maxCraft(38, { "17": 4, "13": 2 }), 2);
 });

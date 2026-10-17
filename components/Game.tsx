@@ -30,6 +30,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { DRAW_DELAY_MS, revealDraw } from "@/lib/draw";
 import { rewardColors } from "@/lib/reward-colors";
 import {
   items as defaultItems,
@@ -51,13 +52,13 @@ type Offer = {
   acceptor_id: string | null;
   status: string;
   created_at: string;
-  profiles: { nickname: string };
+  profiles: { nickname: string; avatar_item_id: number | null };
   trade_offer_lines: { side: string; item_id: number; quantity: number }[];
 };
 type State = {
   items: Item[];
   userId: string;
-  profile: { nickname: string | null };
+  profile: { nickname: string | null; avatar_item_id: number | null };
   inventory: { item_id: number; quantity: string }[];
   discoveries: { item_id: number }[];
   offers: Offer[];
@@ -134,7 +135,9 @@ export default function Game() {
     [reward, setReward] = useState<number | null>(null),
     [writing, setWriting] = useState(false),
     [drawing, setDrawing] = useState(false),
+    [drawDelayed, setDrawDelayed] = useState(false),
     [showOffer, setShowOffer] = useState(false),
+    [showAvatarPicker, setShowAvatarPicker] = useState(false),
     [give, setGive] = useState<Line[]>([]),
     [want, setWant] = useState<Line[]>([]),
     [offerItem, setOfferItem] = useState(1),
@@ -224,7 +227,7 @@ export default function Game() {
       return () => clearTimeout(t);
     }
   }, [notice]);
-  const scrollLocked = writing || drawing;
+  const scrollLocked = writing || drawing || showAvatarPicker;
   useEffect(() => {
     if (!scrollLocked) return;
     const body = document.body,
@@ -350,17 +353,18 @@ export default function Game() {
       return;
     }
     await run(async () => {
+      setDrawDelayed(false);
       setDrawing(true);
       try {
-        const result = await api("submit", {
-          id: challenge.id,
-          strokes,
-        });
+        const result = await revealDraw(
+          api("submit", { id: challenge.id, strokes }),
+          () => setDrawDelayed(true),
+        );
         setChallenge(null);
         setWriting(false);
         if (result.verified) {
           setReward(result.itemId);
-          await refresh();
+          void refresh();
         }
       } finally {
         setDrawing(false);
@@ -705,7 +709,20 @@ export default function Game() {
                     .map((o) => (
                       <article className="trade-card" key={o.id}>
                         <div className="row">
-                          <strong>{o.profiles?.nickname || "수집가"}</strong>
+                          <div className="trade-identity">
+                            <span className="trade-avatar">
+                              {o.profiles?.avatar_item_id != null ? (
+                                <Art
+                                  id={o.profiles.avatar_item_id}
+                                  size={32}
+                                  reveal
+                                />
+                              ) : (
+                                <UserRound size={20} />
+                              )}
+                            </span>
+                            <strong>{o.profiles?.nickname || "수집가"}</strong>
+                          </div>
                           <small>
                             {new Date(o.created_at).toLocaleDateString("ko-KR")}
                           </small>
@@ -790,9 +807,29 @@ export default function Game() {
                 (state ? (
                   <>
                     <section className="profile-card">
-                      <div className="avatar">
-                        <Leaf size={30} />
-                      </div>
+                      <button
+                        className="avatar"
+                        onClick={() => setShowAvatarPicker(true)}
+                        aria-label="대표 이미지 변경"
+                        disabled={busy}
+                      >
+                        {state.profile.avatar_item_id != null ? (
+                          <Art
+                            id={state.profile.avatar_item_id}
+                            size={48}
+                            reveal
+                          />
+                        ) : (
+                          <UserRound size={30} />
+                        )}
+                      </button>
+                      <button
+                        className="avatar-change"
+                        onClick={() => setShowAvatarPicker(true)}
+                        disabled={busy}
+                      >
+                        대표 이미지 변경
+                      </button>
                       <h2>{state.profile.nickname}</h2>
                       <div className="profile-stats">
                         <div>
@@ -900,6 +937,70 @@ export default function Game() {
             </button>
           </div>
         )}
+        {showAvatarPicker && state && (
+          <div className="overlay">
+            <section
+              className="modal avatar-picker"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="avatar-picker-title"
+            >
+              <button
+                className="close"
+                onClick={() => setShowAvatarPicker(false)}
+                disabled={busy}
+                aria-label="닫기"
+              >
+                <X />
+              </button>
+              <h2 id="avatar-picker-title">대표 이미지 선택</h2>
+              <p>도감에 등록한 아이템을 선택해 주세요.</p>
+              <div className="avatar-grid">
+                {items
+                  .filter((item) => discovered.has(item.id))
+                  .map((item) => (
+                    <button
+                      key={item.id}
+                      className={
+                        state.profile.avatar_item_id === item.id
+                          ? "selected"
+                          : ""
+                      }
+                      disabled={busy}
+                      aria-pressed={state.profile.avatar_item_id === item.id}
+                      onClick={() =>
+                        void run(async () => {
+                          await api("avatar", { itemId: item.id });
+                          await refresh();
+                          setShowAvatarPicker(false);
+                          setNotice("대표 이미지를 변경했어요");
+                        })
+                      }
+                    >
+                      <Art id={item.id} reveal />
+                      <span>{item.name}</span>
+                    </button>
+                  ))}
+              </div>
+              {discovered.size === 0 && (
+                <p>첫 아이템을 발견하면 대표 이미지로 사용할 수 있어요.</p>
+              )}
+              <button
+                className="menu-row"
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    await api("avatar", { itemId: null });
+                    await refresh();
+                    setShowAvatarPicker(false);
+                  })
+                }
+              >
+                기본 이미지 사용 <UserRound size={18} />
+              </button>
+            </section>
+          </div>
+        )}
         {state && !state.profile.nickname && (
           <div className="overlay">
             <section className="modal">
@@ -979,10 +1080,18 @@ export default function Game() {
               <div className="draw-spinner">
                 <RefreshCw size={50} />
               </div>
-              <h2>아이템을 뽑고 있어요...</h2>
-              <div className="draw-progress">
-                <span />
-              </div>
+              <h2>
+                {drawDelayed
+                  ? "결과를 확인하고 있어요..."
+                  : "아이템을 뽑고 있어요..."}
+              </h2>
+              {drawDelayed ? (
+                <p>연결이 느려지고 있어요. 잠시만 기다려 주세요.</p>
+              ) : (
+                <div className="draw-progress">
+                  <span style={{ animationDuration: `${DRAW_DELAY_MS}ms` }} />
+                </div>
+              )}
             </section>
           </div>
         )}

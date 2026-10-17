@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { waitForDraw } from "@/lib/draw";
 import { assertDiscoveredTrade } from "@/lib/trade-discovery";
 import { sessionClient, adminClient } from "@/lib/server";
 import { type Item } from "@/lib/items";
@@ -13,6 +12,7 @@ const line = z.object({
   quantity: z.number().int().min(1).max(1000000),
 });
 const schemas = {
+  avatar: z.object({ itemId: z.number().int().min(0).max(63).nullable() }),
   nickname: z.object({
     nickname: z.string().regex(/^[가-힣a-zA-Z0-9_]{2,12}$/),
   }),
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
           ? db
               .from("trade_offers")
               .select(
-                "*,profiles!trade_offers_owner_id_fkey(nickname),trade_offer_lines(*)",
+                "*,profiles!trade_offers_owner_id_fkey(nickname,avatar_item_id),trade_offer_lines(*)",
               )
               .order("created_at", { ascending: false })
               .order("id")
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       db
         .from("trade_offers")
         .select(
-          "*,profiles!trade_offers_owner_id_fkey(nickname),trade_offer_lines(*)",
+          "*,profiles!trade_offers_owner_id_fkey(nickname,avatar_item_id),trade_offer_lines(*)",
         )
         .order("created_at", { ascending: false })
         .order("id")
@@ -138,6 +138,13 @@ export async function POST(req: Request) {
     if (!Object.hasOwn(schemas, action)) throw new Error("잘못된 요청입니다");
     const payload = schemas[action].parse(body.payload);
     const key = z.uuid().parse(body.requestId);
+    if (action === "avatar") {
+      const { data, error } = await db.rpc("set_avatar", {
+        new_item_id: schemas.avatar.parse(payload).itemId,
+      });
+      if (error) throw new Error(error.message);
+      return NextResponse.json(data);
+    }
     if (action === "nickname") {
       const { data, error } = await db.rpc("set_nickname", {
         new_nickname: schemas.nickname.parse(payload).nickname,
@@ -196,7 +203,6 @@ export async function POST(req: Request) {
         return NextResponse.json(receipt.result);
       }
       await mutate("claim", { id: p.id }, randomUUID());
-      await waitForDraw();
       return NextResponse.json(
         await mutate("draw", { id: p.id, verified: true }, key),
       );

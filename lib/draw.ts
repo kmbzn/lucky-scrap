@@ -1,5 +1,21 @@
 export const DRAW_DELAY_MS = 3000;
-// A client cannot skip the reveal delay by removing its animation.
-export function waitForDraw(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, DRAW_DELAY_MS));
+
+// Prepare the reward during the reveal animation, not after it.
+export async function revealDraw<T>(
+  request: Promise<T>,
+  onAnimationComplete: () => void,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const animation = new Promise<void>((resolve) => {
+    timer = setTimeout(() => {
+      onAnimationComplete();
+      resolve();
+    }, DRAW_DELAY_MS);
+  });
+  try {
+    const [result] = await Promise.all([request, animation]);
+    return result;
+  } finally {
+    clearTimeout(timer!);
+  }
 }
