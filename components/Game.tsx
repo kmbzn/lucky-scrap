@@ -278,7 +278,7 @@ export default function Game() {
   async function submit() {
     if (!challenge || !canvas.current || busy || drawing) return;
     if (!strokes.current.length) {
-      setNotice("점이나 선을 하나 이상 그려 주세요");
+      setNotice("글자를 먼저 써 주세요");
       return;
     }
     await run(async () => {
@@ -431,14 +431,13 @@ export default function Game() {
                     </div>
                     <span className="badge">횟수 제한 없음</span>
                   </div>
-                  <p>자유롭게 그린 뒤 5초를 기다리면 자연물 하나를 얻어요.</p>
+                  <p>제시된 한글 한 글자를 쓰면 아이템 하나를 얻어요.</p>
                   <button
                     className="primary"
                     disabled={busy}
                     onClick={() => void newChallenge()}
                   >
-                    <Sparkles size={18} />
-                    그림 그리고 뽑기
+                    <Sparkles size={18} />한 글자 쓰고 뽑기
                   </button>
                 </section>
               )}
@@ -920,8 +919,14 @@ export default function Game() {
               >
                 <X />
               </button>
-              <h2>자유롭게 그려 주세요</h2>
-              <p>어떤 글씨나 그림도 괜찮아요. 점 하나도 가능해요.</p>
+              <h2>
+                <em>‘{challenge.letter}’</em>
+                {(challenge.letter.charCodeAt(0) - 0xac00) % 28 === 0
+                  ? "를"
+                  : "을"}{" "}
+                써 주세요
+              </h2>
+              <p>아래 칸에 손가락으로 글자를 써 주세요.</p>
               <canvas
                 ref={canvas}
                 width={320}
@@ -934,21 +939,20 @@ export default function Game() {
                 onPointerCancel={() => {
                   active.current = false;
                 }}
-                aria-label="자유롭게 그리는 입력 영역"
+                aria-label={`${challenge.letter} 쓰기 입력 영역`}
               />
               <div className="canvas-toolbar">
                 <button onClick={clearCanvas} disabled={busy}>
                   <Trash2 size={16} />
                   지우기
                 </button>
-                <small>글자 판정 없이 뽑기 · 5초 대기</small>
               </div>
               <button
                 className="primary"
                 disabled={busy}
                 onClick={() => void submit()}
               >
-                그림 제출하고 뽑기
+                글자 제출하고 뽑기
                 <Check size={18} />
               </button>
             </section>
@@ -964,8 +968,7 @@ export default function Game() {
               <div className="draw-spinner">
                 <RefreshCw size={50} />
               </div>
-              <h2>자연물을 뽑고 있어요</h2>
-              <p>5초 후 결과가 나타납니다.</p>
+              <h2>아이템을 뽑고 있어요...</h2>
               <div className="draw-progress">
                 <span />
               </div>
