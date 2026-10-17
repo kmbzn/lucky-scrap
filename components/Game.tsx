@@ -443,55 +443,13 @@ export default function Game() {
                 </section>
               )}
               <div className="section-title">
-                <h2>플레이 방법</h2>
-              </div>
-              <div className="how-grid">
-                {[
-                  {
-                    id: 2,
-                    n: "01",
-                    title: "발견하기",
-                    text: "자유롭게 그리고\n자연물을 받아요",
-                  },
-                  {
-                    id: 48,
-                    n: "02",
-                    title: "만들기",
-                    text: "재료를 조합해\n새 물건을 만들어요",
-                  },
-                  {
-                    id: 38,
-                    n: "03",
-                    title: "나누기",
-                    text: "공개 장터에서\n필요한 걸 바꿔요",
-                  },
-                ].map((v) => (
-                  <div className="how-card" key={v.n}>
-                    <span className="step">{v.n}</span>
-                    <Art id={v.id} />
-                    <h3>{v.title}</h3>
-                    <p>{v.text}</p>
-                  </div>
-                ))}
-              </div>
-              <button className="goal-banner" onClick={() => setDetail(63)}>
-                <div className="goal-icon">
-                  <Art id={63} size={57} />
-                </div>
-                <div>
-                  <h3>{name(63)}</h3>
-                  <p>조합법 확인</p>
-                </div>
-                <ChevronRight size={18} />
-              </button>
-              <div className="section-title">
                 <h2>아이템</h2>
                 <button onClick={() => changeTab("도감")}>
                   도감 보기 <ArrowRight size={13} />
                 </button>
               </div>
               <div className="specimen-row">
-                {[1, 5, 12, 20, 23].map((id) => (
+                {[1, 2, 3, 4, 5].map((id) => (
                   <button key={id} onClick={() => setDetail(id)}>
                     <Art id={id} />
                     <small>{name(id)}</small>

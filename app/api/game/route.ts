@@ -138,8 +138,6 @@ export async function POST(req: Request) {
         );
       return NextResponse.json(data);
     }
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
-      throw new Error("서버 설정 필요: Supabase service_role 키를 설정하세요");
     const admin = adminClient();
     async function mutate(a: string, p: unknown, k = key) {
       const { data, error } = await admin.rpc("game_mutate", {

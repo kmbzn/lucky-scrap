@@ -15,7 +15,14 @@ export async function sessionClient() {
   });
 }
 export function adminClient() {
-  return createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  const key =
+    process.env.SUPABASE_SECRET_KEY?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!key)
+    throw new Error(
+      "서버 설정 필요: Vercel에 SUPABASE_SECRET_KEY를 등록해 주세요",
+    );
+  return createClient(supabaseUrl, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

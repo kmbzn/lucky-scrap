@@ -42,7 +42,7 @@ npm start
 | ------------------------------- | -------------------------------------------------------------------------- | ------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Supabase 프로젝트 URL                                                      | 예            |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon/publishable 키                                                        | 예            |
-| `SUPABASE_SERVICE_ROLE_KEY`     | 서버 전용 뽑기·제작·장터 변경 권한                                         | 아니요        |
+| `SUPABASE_SECRET_KEY`           | 서버 전용 뽑기·제작·장터 변경 권한                                         | 아니요        |
 | `NEXT_PUBLIC_SITE_URL`          | 배포 origin `https://lucky-scrap.vercel.app`, 로컬 `http://localhost:3000` | 예            |
 | `TEST_DATABASE_URL`             | CREATE DATABASE 권한이 있는 테스트 DB URL                                  | 테스트 전용   |
 
@@ -131,3 +131,9 @@ DB 테스트는 별도 `jogak_test_<timestamp>` DB를 생성하고 종료 시 �
 GitHub 저장소 `kmbzn/lucky-scrap`의 main에 push하면 연결된 Vercel이 배포합니다. Root Directory는 `./`, Framework는 Next.js, Node.js는 22.x입니다. `vercel.json`의 npm ci/build 명령을 사용합니다. Production 환경변수 변경 뒤 Redeploy하세요. GitHub Pages 정적 호스팅 대신 Next.js 서버 호스팅을 사용합니다.
 
 공식 참고: [Supabase Kakao](https://supabase.com/docs/guides/auth/social-login/auth-kakao), [Kakao 오류 코드](https://developers.kakao.com/docs/ko/kakaologin/trouble-shooting), [Supabase 리다이렉트 설정](https://supabase.com/docs/guides/auth/redirect-urls).
+
+### 서버 키 설정과 메인 구성
+
+Vercel에서 `서버 설정 필요`가 나오면 Supabase Settings → API Keys → Secret keys의 `sb_secret_…` 값을 Vercel Settings → Environment Variables의 **SUPABASE_SECRET_KEY**, Production 범위에 등록하고 Redeploy하세요. 브라우저용 publishable 키를 대신 넣지 마세요. 기존 **SUPABASE_SERVICE_ROLE_KEY**도 지원하며, 두 값이 있으면 SUPABASE_SECRET_KEY를 우선합니다. 비밀 키는 GitHub·브라우저·채팅에 넣지 않습니다.
+
+메인 페이지의 플레이 방법과 우승 트로피 조합법 안내는 제거했습니다. 하단 아이템 목록은 **001 나뭇가지, 002 나뭇잎, 003 나무껍질, 004 볏짚, 005 목화**만 순서대로 공개합니다. 트로피 레시피는 조합 화면의 기존 제작법으로 유지합니다.
