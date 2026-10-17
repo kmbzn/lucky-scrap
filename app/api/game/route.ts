@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { sessionClient, adminClient } from "@/lib/server";
 import { recognize, renderHandwriting, strokesSchema } from "@/lib/handwriting";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 const line = z.object({
   itemId: z.number().int().min(0).max(63),
   quantity: z.number().int().min(1).max(1000000),

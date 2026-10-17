@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "icons": "python scripts/crop_icons.py",
+    "icons": "node scripts/crop-icons.mjs",
     "prebuild": "npm run icons"
   },
   "dependencies": {
@@ -35,5 +35,8 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

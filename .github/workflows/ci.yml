@@ -30,7 +30,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: npm ci
-      - run: pip install -r requirements.txt
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

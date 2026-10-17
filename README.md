@@ -11,11 +11,10 @@
 
 ## 로컬 실행
 
-Node.js 20.9 이상(권장 22 LTS), npm, Python 3 및 Pillow가 필요합니다. 아이콘은 이미 포함되어 있고 빌드 직전에도 자동 생성합니다.
+Node.js 22 LTS와 npm이 필요합니다. 아이콘은 이미 포함되어 있고 빌드 직전에도 자동 생성합니다.
 
 ```bash
 npm ci
-python -m pip install -r requirements.txt
 cp .env.example .env.local
 # .env.local에 실제 연결 값 입력
 npm run dev
@@ -105,7 +104,7 @@ Docker가 있는 환경에서는 `npx supabase start`와 `npx supabase db reset`
 ## 아이템과 밸런스
 
 - `public/items.png`는 제공한 1254×1254 RGBA 원본과 바이트 단위로 동일합니다. 원본 변경·리사이즈·재생성은 없습니다.
-- `scripts/crop_icons.py`가 `[0,157,314,470,627,784,940,1097,1254]` 경계로 원본 픽셀을 크롭합니다. 156~157px 크기·alpha를 유지하고 `000.png`는 완전히 투명합니다.
+- `scripts/crop-icons.mjs`가 `[0,157,314,470,627,784,940,1097,1254]` 경계로 원본 픽셀을 크롭합니다. 156~157px 크기·alpha를 유지하고 `000.png`는 완전히 투명합니다.
 - UI만 32~64px(강조 화면은 더 크게)로 표시하고 `image-rendering: pixelated`를 적용합니다.
 - 23종 자연물의 정수 가중치 합은 1000입니다. PostgreSQL pgcrypto의 보안 난수와 rejection sampling으로 균등한 0~999를 만든 뒤 누적 가중치로 선택합니다. 000·제작품은 나오지 않습니다.
 - `lib/items.json`과 DB catalog migration/seed는 같은 정의로 생성합니다. 변경 시 `python scripts/generate_data.py`를 실행하세요. 운영 중 레시피 변경은 기존 마이그레이션 수정 대신 새 마이그레이션을 작성해야 합니다.
@@ -157,7 +156,7 @@ DB 테스트는 `jogak_test_<timestamp>`라는 새 임시 데이터베이스를 
 
 ## 배포
 
-Node.js를 지원하는 호스팅(Vercel 또는 Node 서버)에 프로젝트 루트를 연결합니다. `npm ci` 후 Pillow를 준비하고 `npm run build`, Node 서버의 경우 `npm start`를 사용합니다. Supabase 마이그레이션을 먼저 적용하고 호스팅 환경변수를 모두 설정하세요. OAuth allow list, Kakao Redirect URI, 사이트 origin, Google API 제한을 배포 도메인 기준으로 맞춥니다. HTTPS를 사용합니다. 이 저장소는 Next.js 서버를 요구하며 정적 HTML export만으로는 게임 서버가 작동하지 않습니다.
+Node.js를 지원하는 호스팅(Vercel 또는 Node 서버)에 프로젝트 루트를 연결합니다. `npm ci` 후 `npm run build`, Node 서버의 경우 `npm start`를 사용합니다. Supabase 마이그레이션을 먼저 적용하고 호스팅 환경변수를 모두 설정하세요. OAuth allow list, Kakao Redirect URI, 사이트 origin, Google API 제한을 배포 도메인 기준으로 맞춥니다. HTTPS를 사용합니다. 이 저장소는 Next.js 서버를 요구하며 정적 HTML export만으로는 게임 서버가 작동하지 않습니다.
 
 주요 파일: `components/Game.tsx`(전체 모바일 화면), `app/api/game/route.ts`(서버 인증/검증), `lib/handwriting.ts`(서버 렌더·OCR), `proxy.ts`(세션 갱신), `supabase/migrations/`(경제·RLS·시드), `tests/`(에셋·밸런스·실제 DB 검증).
 
@@ -175,3 +174,19 @@ Node.js를 지원하는 호스팅(Vercel 또는 Node 서버)에 프로젝트 루
 ### GitHub Pages 호스팅 관련
 
 GitHub Pages는 정적 파일 호스팅입니다. 현재 구현의 서버 API, service_role, OCR 비밀 키, 서버 세션을 Pages에서 실행할 수 없습니다. `output: export`로 바꾸는 것만으로는 실제 게임이 작동하지 않습니다. 현재 명세를 유지하려면 `kmbzn/lucky-scrap` 소스 저장소를 Vercel 등 Next.js 서버 호스팅에 연결하세요. Pages를 사용할 경우 서버 기능을 Supabase Edge Functions 같은 별도 서버로 옮기고 OAuth·세션을 정적 클라이언트 환경에 맞게 재설계해야 합니다. 비밀 키를 Pages 빌드의 공개 JavaScript에 넣으면 안 됩니다.
+
+## 선택한 배포 구성: GitHub + Vercel
+
+GitHub Pages는 사용하지 않습니다. 소스 저장소는 `https://github.com/kmbzn/lucky-scrap`, 서버 호스팅은 Vercel, 데이터베이스·인증·실시간은 Supabase입니다.
+
+1. Vercel에서 Add New → Project → `kmbzn/lucky-scrap`을 Import합니다. GitHub 접근 권한은 이 저장소로 지정합니다.
+2. Root Directory는 저장소 루트, Framework Preset은 Next.js, Node.js는 22.x로 설정합니다. `vercel.json`이 install/build 명령을 지정합니다. 아이콘은 Node.js sharp로 생성하므로 Python 설치가 필요 없습니다.
+3. Supabase 마이그레이션 두 개를 적용하고 README의 Kakao provider 설정을 완료합니다.
+4. Vercel Settings → Environment Variables에 `.env.example`의 다섯 변수를 입력합니다. 서버 비밀 키 두 개에는 NEXT_PUBLIC 접두사를 붙이지 않습니다. 프로덕션과 Preview 환경은 필요에 따라 별도 Supabase 프로젝트를 사용합니다.
+5. 첫 배포로 확정된 프로덕션 도메인(예: `https://lucky-scrap.vercel.app`; 실제 주소는 Vercel 결과 기준)을 확인하고 `NEXT_PUBLIC_SITE_URL`을 정확히 맞춘 뒤 Redeploy합니다. URL에 `/lucky-scrap` 경로를 붙이지 않습니다.
+6. Supabase Site URL과 Redirect allow list에 실제 도메인 및 `/auth/callback`을, Kakao 웹 플랫폼에 실제 사이트 origin을 등록합니다. Kakao OAuth Redirect URI 자체는 Supabase의 `/auth/v1/callback` 주소입니다.
+7. 배포된 주소에서 카카오 로그인 → 닉네임 → 손글씨 인식 → 재고 → 제작 → 서로 다른 두 계정의 공개 거래 → 랭킹을 검증합니다. 환경변수가 없으면 소개 화면만 표시되며 실제 플레이는 활성화되지 않습니다.
+
+GitHub의 main에 push하면 연결된 Vercel 프로젝트가 자동 배포합니다. Preview 도메인으로 실제 OAuth를 시험하려면 해당 URL을 별도로 허용하고 그 환경의 사이트 URL을 맞추세요. Vercel CLI를 쓰는 경우 `.vercel/`은 비밀 환경 파일이 포함될 수 있어 Git에서 제외합니다. OCR API 라우트의 실행 한도는 60초로 설정했고 외부 OCR 요청 자체는 15초에 타임아웃됩니다.
+
+참고: [Vercel GitHub 연결](https://vercel.com/docs/git/vercel-for-github), [Vercel 환경변수](https://vercel.com/docs/environment-variables).
