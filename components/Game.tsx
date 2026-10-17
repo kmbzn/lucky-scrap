@@ -401,7 +401,7 @@ export default function Game() {
   }
   return (
     <DiscoveryContext.Provider value={visibleItems}>
-      <main className="phone">
+      <main className={`phone${tab === "뽑기" ? " home" : ""}`}>
         <header className="header">
           <button className="brand" onClick={() => changeTab("뽑기")}>
             <span className="brand-mark">
@@ -413,7 +413,6 @@ export default function Game() {
         <div className="content">
           {tab === "뽑기" && (
             <>
-              <h1>수집 · 조합 · 교환</h1>
               <section className="island" aria-label="자연물 아이템">
                 <span className="pixel-sun" />
                 <span className="cloud cloud-one" />

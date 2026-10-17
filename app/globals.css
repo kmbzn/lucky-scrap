@@ -1429,3 +1429,15 @@ button {
   object-fit: contain;
   image-rendering: pixelated;
 }
+
+.home .header {
+  height: 72px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-bottom: 12px;
+}
+.home .content {
+  padding-top: 12px;
+}
+.home .island {
+  margin-bottom: 14px;
+}
