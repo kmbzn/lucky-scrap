@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import sharp from "sharp";
-import { readFile, readdir } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { items, baseMaterials, maxCraft } from "../lib/items";
 import { strokesSchema } from "../lib/handwriting";
 test("64 items, 23 natural weights total 1000, 40 exact recipes", () => {
@@ -28,15 +28,7 @@ test("recursive gold balance and craft availability", () => {
   assert.equal(maxCraft(24, {}), 0);
   assert.deepEqual(baseMaterials(25), { "5": 9 });
 });
-test("original sheet preserved; all 64 editable icons use a transparent 48px grid", async () => {
-  assert.deepEqual(
-    await readFile("items.png"),
-    await readFile("public/items.png"),
-  );
-  const meta = await sharp("public/items.png").metadata();
-  assert.equal(meta.width, 1254);
-  assert.equal(meta.height, 1254);
-  assert.equal(meta.channels, 4);
+test("all 64 editable icons use a transparent 48px grid", async () => {
   assert.equal(
     (await readdir("public/item-icons")).filter((n) => n.endsWith(".png"))
       .length,
