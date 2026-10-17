@@ -34,7 +34,7 @@ npm run build
 npm start
 ```
 
-빌드 직전에 Node.js sharp로 아이콘을 생성합니다. Python 설치는 필요 없습니다. `scripts/crop_icons.py`도 동일한 Node.js 크롭 파이프라인을 실행합니다.
+게임은 `public/item-icons/*.png`에 커밋된 아이템 스프라이트를 그대로 사용합니다. 빌드 직전에는 현재 나뭇잎 아이콘으로 앱 대표 아이콘만 생성하며, 수정한 아이템 이미지를 덮어쓰지 않습니다. `npm run icons`는 원본 시트에서 아이템 전체를 다시 생성하므로 개별 수정본을 교체하려는 경우에만 실행하세요. Python 설치는 필요 없습니다. `scripts/crop_icons.py`도 동일한 Node.js 크롭 파이프라인을 실행합니다.
 
 ## 환경변수
 

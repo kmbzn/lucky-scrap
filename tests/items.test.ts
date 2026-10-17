@@ -28,7 +28,7 @@ test("recursive gold balance and craft availability", () => {
   assert.equal(maxCraft(24, {}), 0);
   assert.deepEqual(baseMaterials(25), { "5": 9 });
 });
-test("original sheet preserved; all 64 icons use a solid 48px grid with no interior holes", async () => {
+test("original sheet preserved; all 64 editable icons use a transparent 48px grid", async () => {
   assert.deepEqual(
     await readFile("items.png"),
     await readFile("public/items.png"),
@@ -51,26 +51,6 @@ test("original sheet preserved; all 64 icons use a solid 48px grid with no inter
     assert.equal(info.width, 48);
     assert.equal(info.height, 48);
     let visible = 0;
-    const outside = new Set<number>([0]),
-      queue = [0];
-    for (let cursor = 0; cursor < queue.length; cursor++) {
-      const index = queue[cursor],
-        x = index % 48,
-        y = Math.floor(index / 48);
-      for (const [nx, ny] of [
-        [x - 1, y],
-        [x + 1, y],
-        [x, y - 1],
-        [x, y + 1],
-      ]) {
-        if (nx < 0 || ny < 0 || nx >= 48 || ny >= 48) continue;
-        const next = ny * 48 + nx;
-        if (!outside.has(next) && !data[next * 4 + 3]) {
-          outside.add(next);
-          queue.push(next);
-        }
-      }
-    }
     for (let index = 0; index < 48 * 48; index++) {
       const offset = index * 4,
         alpha = data[offset + 3];
@@ -78,11 +58,7 @@ test("original sheet preserved; all 64 icons use a solid 48px grid with no inter
       if (alpha) {
         visible++;
         for (let c = 0; c < 3; c++) assert.equal(data[offset + c] % 17, 0);
-      } else
-        assert.ok(
-          outside.has(index),
-          `item ${id} has an enclosed transparent hole`,
-        );
+      }
       const x = index % 48,
         y = Math.floor(index / 48);
       if (x === 0 || y === 0 || x === 47 || y === 47) assert.equal(alpha, 0);
