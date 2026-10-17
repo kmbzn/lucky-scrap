@@ -17,7 +17,7 @@ body {
   margin: 0;
   font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
 }
 button,
@@ -51,7 +51,7 @@ button {
 input,
 select {
   min-width: 0;
-  font-size: 16px;
+  font-size: 19px;
 }
 button,
 svg {
@@ -81,13 +81,13 @@ svg {
   gap: 9px;
   padding: 0;
   text-align: left;
-  font-size: 23px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: -1.2px;
 }
 .brand small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.1px;
   font-weight: 400;
   color: #88927e;
@@ -119,7 +119,7 @@ svg {
   padding: 29px 25px 115px;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 13px;
   color: #7b8b6e;
   letter-spacing: 1.35px;
   font-weight: 600;
@@ -134,7 +134,7 @@ svg {
   box-shadow: 0 0 0 3px #e8eddc;
 }
 h1 {
-  font-size: 30px;
+  font-size: 34px;
   line-height: 1.4;
   letter-spacing: -1.3px;
   margin: 14px 0 10px;
@@ -145,18 +145,18 @@ h1 em {
   color: var(--green);
 }
 h2 {
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.5px;
   margin: 0;
 }
 h3 {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   margin: 0;
 }
 .intro {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
   color: #87907f;
   margin: 0 0 21px;
@@ -178,7 +178,7 @@ h3 {
   top: 15px;
   left: 16px;
   font-family: monospace;
-  font-size: 7px;
+  font-size: 12px;
   letter-spacing: 1.5px;
   color: #8e9b80;
 }
@@ -290,7 +290,7 @@ h3 {
 }
 .sprout {
   position: absolute;
-  font-size: 15px;
+  font-size: 18px;
   color: #8da06b;
   z-index: 2;
 }
@@ -301,7 +301,7 @@ h3 {
 .sprout-two {
   right: 61px;
   top: 109px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .floating-tag {
   position: absolute;
@@ -311,7 +311,7 @@ h3 {
   white-space: nowrap;
   background: #fafbf4e8;
   color: #728263;
-  font-size: 9px;
+  font-size: 12px;
   padding: 7px 11px;
   border: 1px solid #dfe5d3;
   display: flex;
@@ -329,7 +329,7 @@ h3 {
   justify-content: center;
   gap: 9px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   position: relative;
 }
@@ -354,7 +354,7 @@ h3 {
 }
 .login-caption {
   text-align: center;
-  font-size: 9px;
+  font-size: 12px;
   color: #9b9d8c;
   margin: 10px 0 29px;
 }
@@ -366,16 +366,16 @@ h3 {
   margin: 25px 0 14px;
 }
 .section-title h2 {
-  font-size: 14px;
+  font-size: 17px;
 }
 .section-title > span {
   font-family: monospace;
-  font-size: 8px;
+  font-size: 12px;
   color: #99a08d;
   letter-spacing: 1px;
 }
 .section-title button {
-  font-size: 10px;
+  font-size: 13px;
   color: #849176;
   display: flex;
   align-items: center;
@@ -406,11 +406,11 @@ h3 {
   display: block;
 }
 .how-card h3 {
-  font-size: 11px;
+  font-size: 14px;
 }
 .how-card p {
   white-space: pre-line;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   color: #939b87;
   margin: 6px 0 0;
@@ -431,15 +431,15 @@ h3 {
   flex-shrink: 0;
 }
 .goal-banner small {
-  font-size: 8px;
+  font-size: 12px;
   color: #8b9a72;
 }
 .goal-banner h3 {
-  font-size: 11px;
+  font-size: 14px;
   margin: 5px 0;
 }
 .goal-banner p {
-  font-size: 8px;
+  font-size: 12px;
   color: #929d80;
   margin: 0;
 }
@@ -462,13 +462,13 @@ h3 {
   height: 43px;
 }
 .specimen-row small {
-  font-size: 9px;
+  font-size: 12px;
   color: #929782;
   white-space: nowrap;
 }
 .footnote {
   color: #aaae9c;
-  font-size: 8px;
+  font-size: 12px;
   text-align: center;
   margin: 25px -5px 0;
 }
@@ -487,7 +487,7 @@ h3 {
   min-height: 74px;
 }
 .bottom-nav button {
-  font-size: 9px;
+  font-size: 12px;
   color: #a0a590;
   display: flex;
   align-items: center;
@@ -529,7 +529,7 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   padding: 10px 12px;
 }
@@ -540,12 +540,12 @@ h3 {
   border-radius: 6px;
 }
 .draw-card h2 {
-  font-size: 14px;
+  font-size: 17px;
   margin-top: 6px;
 }
 .draw-card p,
 .subtext {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.8;
   color: #88917d;
   margin: 10px 0 17px;
@@ -556,12 +556,12 @@ h3 {
   background: #e8edde;
   border-radius: 3px;
   color: #788965;
-  font-size: 9px;
+  font-size: 12px;
 }
 .config-note {
   display: block;
   color: #a48b51;
-  font-size: 10px;
+  font-size: 13px;
   text-align: center;
   margin-top: 9px;
 }
@@ -582,14 +582,14 @@ h3 {
   margin: 3px 0 12px;
 }
 .page-title h1 {
-  font-size: 23px;
+  font-size: 26px;
   margin: 10px 0 0;
 }
 .page-title > svg {
   color: #8d9f76;
 }
 .page-title .eyebrow {
-  font-size: 8px;
+  font-size: 12px;
 }
 .collection-card {
   padding: 18px;
@@ -599,17 +599,17 @@ h3 {
   margin-bottom: 20px;
 }
 .collection-card .row {
-  font-size: 11px;
+  font-size: 14px;
 }
 .collection-card strong {
-  font-size: 22px;
+  font-size: 25px;
 }
 .collection-card strong small {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
 }
 .collection-card > small {
-  font-size: 9px;
+  font-size: 12px;
   color: #859575;
 }
 .progress {
@@ -641,7 +641,7 @@ h3 {
   border: 0;
   width: 100%;
   outline: none;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--ink);
 }
 .search input::placeholder {
@@ -657,7 +657,7 @@ h3 {
 .chips button {
   padding: 8px 10px;
   border: 1px solid var(--line);
-  font-size: 10px;
+  font-size: 13px;
   border-radius: 4px;
   background: #fbfaf4;
   min-height: 34px;
@@ -669,7 +669,7 @@ h3 {
 }
 .chips > span {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 13px;
   color: #9ca48d;
 }
 .codex {
@@ -703,7 +703,7 @@ h3 {
   filter: grayscale(0.75);
 }
 .codex-cell > span:last-child {
-  font-size: 7px;
+  font-size: 12px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -753,7 +753,7 @@ h3 {
   margin-top: 4px;
 }
 .owned {
-  font-size: 10px;
+  font-size: 13px;
   color: #89967b;
   margin-left: auto;
 }
@@ -766,12 +766,12 @@ h3 {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 14px;
   min-height: 30px;
 }
 .ingredients strong {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 13px;
   color: #668054;
 }
 .ingredients strong.short {
@@ -789,7 +789,7 @@ h3 {
   border-radius: 4px;
   color: #62814c;
   background: #ecf0e4;
-  font-size: 11px;
+  font-size: 14px;
 }
 .craft-actions button:last-child {
   background: #386b4e;
@@ -801,7 +801,7 @@ h3 {
   padding: 40px 5px;
   text-align: center;
   color: #9aa38a;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
   display: flex;
   flex-direction: column;
@@ -823,10 +823,10 @@ h3 {
   margin: 12px 0;
 }
 .trade-card > .row {
-  font-size: 12px;
+  font-size: 15px;
 }
 .trade-card > .row small {
-  font-size: 9px;
+  font-size: 12px;
 }
 .trade-sides {
   display: grid;
@@ -840,7 +840,7 @@ h3 {
   border-radius: 4px;
 }
 .trade-sides > div > small {
-  font-size: 9px;
+  font-size: 12px;
   color: #889875;
 }
 .trade-line {
@@ -848,11 +848,11 @@ h3 {
   align-items: center;
   gap: 4px;
   margin-top: 5px;
-  font-size: 10px;
+  font-size: 13px;
 }
 .trade-line strong {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
 }
 .realtime {
@@ -885,7 +885,7 @@ h3 {
   margin: auto auto 14px;
 }
 .profile-card p {
-  font-size: 11px;
+  font-size: 14px;
   color: #92a080;
 }
 .profile-stats {
@@ -903,15 +903,15 @@ h3 {
   border: 0;
 }
 .profile-stats strong {
-  font-size: 23px;
+  font-size: 26px;
 }
 .profile-stats strong em {
-  font-size: 11px;
+  font-size: 14px;
   font-style: normal;
   color: #9ca98a;
 }
 .profile-stats small {
-  font-size: 9px;
+  font-size: 12px;
   color: #899b73;
 }
 .inventory-grid {
@@ -935,10 +935,10 @@ h3 {
   align-self: flex-start;
 }
 .inventory-grid b {
-  font-size: 10px;
+  font-size: 13px;
 }
 .inventory-grid span {
-  font-size: 11px;
+  font-size: 14px;
   color: #789263;
 }
 .menu-row {
@@ -948,7 +948,7 @@ h3 {
   justify-content: space-between;
   padding: 19px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 15px;
 }
 .logout {
   display: flex;
@@ -956,7 +956,7 @@ h3 {
   gap: 8px;
   color: #9ba08f;
   margin: 24px 0;
-  font-size: 11px;
+  font-size: 14px;
 }
 .overlay {
   position: fixed;
@@ -983,10 +983,10 @@ h3 {
 }
 .modal h2 {
   margin: 14px 0 10px;
-  font-size: 19px;
+  font-size: 22px;
 }
 .modal p {
-  font-size: 11px;
+  font-size: 14px;
   color: #909b80;
   line-height: 1.9;
   margin: 8px 0 18px;
@@ -1012,10 +1012,10 @@ h3 {
   background: #fcfcf7;
   border-radius: 4px;
   color: var(--ink);
-  font-size: 14px;
+  font-size: 17px;
 }
 .writing-modal h2 em {
-  font-size: 36px;
+  font-size: 40px;
   color: #66874d;
   font-style: normal;
   margin-right: 3px;
@@ -1056,10 +1056,10 @@ h3 {
   align-items: center;
   color: #82916f;
   min-height: 33px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .canvas-toolbar small {
-  font-size: 9px;
+  font-size: 12px;
   color: #9da88e;
 }
 .toast {
@@ -1075,7 +1075,7 @@ h3 {
   border: 1px solid #6c8463;
   padding: 14px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 15px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1104,7 +1104,7 @@ h3 {
 .plain {
   min-height: 40px;
   color: #91a17e;
-  font-size: 11px;
+  font-size: 14px;
   margin-top: 9px;
 }
 .detail-art {
@@ -1122,14 +1122,14 @@ h3 {
 .item-modal > .row {
   padding: 11px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 11px;
+  font-size: 14px;
 }
 .quantity-input {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 12px 0;
-  font-size: 11px;
+  font-size: 14px;
 }
 .quantity-input input {
   width: 100%;
@@ -1143,7 +1143,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 14px;
   white-space: nowrap;
 }
 .offer-lines {
@@ -1151,7 +1151,7 @@ h3 {
   padding: 12px 0;
 }
 .offer-lines > strong {
-  font-size: 11px;
+  font-size: 14px;
   color: #7c916b;
 }
 .offer-lines > div {
@@ -1159,7 +1159,7 @@ h3 {
   align-items: center;
   gap: 6px;
   margin-top: 8px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .offer-lines button {
   margin-left: auto;
@@ -1187,7 +1187,7 @@ h3 {
     padding-right: 18px;
   }
   h1 {
-    font-size: 27px;
+    font-size: 30px;
   }
   .island {
     height: 224px;
@@ -1212,16 +1212,16 @@ h3 {
     gap: 5px;
   }
   .goal-banner h3 {
-    font-size: 9px;
+    font-size: 12px;
   }
   .goal-banner p {
-    font-size: 7px;
+    font-size: 12px;
   }
   .goal-banner small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .codex-cell > span:last-child {
-    font-size: 6px;
+    font-size: 12px;
   }
   .codex {
     gap: 2px;
@@ -1230,7 +1230,7 @@ h3 {
     padding: 24px 17px;
   }
   .how-card p {
-    font-size: 8px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1251,7 +1251,7 @@ h3 {
   border-radius: 5px;
   color: #799164;
   background: #edf1e4;
-  font-size: 11px;
+  font-size: 14px;
 }
 .unknown-item {
   display: inline-flex;
@@ -1263,7 +1263,7 @@ h3 {
   border: 1px dashed #c3cdb6;
   border-radius: 5px;
   font-family: monospace;
-  font-size: 12px;
+  font-size: 15px;
   letter-spacing: 1px;
   vertical-align: middle;
 }
@@ -1274,7 +1274,7 @@ h3 {
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 .draw-wait {
@@ -1303,7 +1303,7 @@ h3 {
   height: 100%;
   background: var(--green);
   transform-origin: left;
-  animation: draw-fill 5s linear forwards;
+  animation: draw-fill 3s linear forwards;
 }
 @keyframes draw-spin {
   to {
@@ -1317,4 +1317,71 @@ h3 {
   to {
     transform: scaleX(1);
   }
+}
+
+/* Larger readable text while retaining the 320–430px mobile shell. */
+body {
+  line-height: 1.55;
+}
+button {
+  line-height: 1.4;
+}
+.recipe-head > div,
+.trade-line > span {
+  min-width: 0;
+}
+.recipe-head > div {
+  flex: 1;
+}
+.recipe-head h3,
+.trade-line > span,
+.inventory-grid b {
+  overflow-wrap: anywhere;
+}
+.specimen-row small {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.codex-cell > small {
+  font-size: 10px;
+}
+.codex-cell > span:last-child {
+  font-size: 12px;
+  line-height: 1.35;
+}
+.ingredients > div > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.close {
+  width: 44px;
+  height: 44px;
+}
+.overlay {
+  overscroll-behavior: none;
+}
+.writing-modal {
+  overscroll-behavior: contain;
+}
+.writing-modal canvas {
+  display: block;
+  width: min(100%, calc(100dvh - 280px));
+  max-width: 320px;
+  min-width: 160px;
+  margin-inline: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.trade-warning {
+  font-size: 14px;
+  color: #a16c48;
+  line-height: 1.6;
 }

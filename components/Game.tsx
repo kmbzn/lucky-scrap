@@ -32,7 +32,9 @@ import { items, icon, maxCraft } from "@/lib/items";
 import { itemName, matchesItem } from "@/lib/discovery";
 import { itemDescriptions } from "@/lib/item-descriptions";
 import { browserClient, configured } from "@/lib/supabase";
-import type { Stroke } from "@/lib/handwriting";
+import WritingBoard, {
+  type WritingBoardHandle,
+} from "@/components/WritingBoard";
 type Tab = "뽑기" | "조합" | "장터" | "도감" | "내정보";
 type Line = { itemId: number; quantity: number };
 type Offer = {
@@ -115,10 +117,7 @@ export default function Game() {
     [offerQty, setOfferQty] = useState(1),
     [offerSide, setOfferSide] = useState("give");
   const pendingRequests = useRef(new Map<string, string>());
-  const canvas = useRef<HTMLCanvasElement>(null),
-    strokes = useRef<Stroke[]>([]),
-    active = useRef(false),
-    started = useRef(0);
+  const board = useRef<WritingBoardHandle>(null);
   const inventory = Object.fromEntries(
     (state?.inventory || []).map((r) => [r.item_id, Number(r.quantity)]),
   );
@@ -131,6 +130,17 @@ export default function Game() {
   const visibleItems =
     tab === "뽑기" ? new Set(items.map((item) => item.id)) : discovered;
   const name = (id: number) => itemName(id, visibleItems);
+  const tradeItems = items.filter(
+    (item) =>
+      discovered.has(item.id) &&
+      (offerSide === "want" || (inventory[item.id] || 0) > 0),
+  );
+  const selectedOfferItem = tradeItems.some((item) => item.id === offerItem)
+    ? offerItem
+    : (tradeItems[0]?.id ?? null);
+  const offerAffordable = give.every(
+    (line) => (inventory[line.itemId] || 0) >= line.quantity,
+  );
   const refresh = useCallback(async () => {
     if (!configured) return;
     try {
@@ -187,6 +197,37 @@ export default function Game() {
       return () => clearTimeout(t);
     }
   }, [notice]);
+  const scrollLocked = writing || drawing;
+  useEffect(() => {
+    if (!scrollLocked) return;
+    const body = document.body,
+      html = document.documentElement;
+    const y = window.scrollY,
+      x = window.scrollX;
+    const old = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      overscroll: html.style.overscrollBehavior,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.left = `-${x}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    return () => {
+      body.style.position = old.position;
+      body.style.top = old.top;
+      body.style.left = old.left;
+      body.style.width = old.width;
+      body.style.overflow = old.overflow;
+      html.style.overscrollBehavior = old.overscroll;
+      window.scrollTo(x, y);
+    };
+  }, [scrollLocked]);
   async function api(action: string, payload: unknown) {
     const fingerprint = JSON.stringify({ action, payload });
     const requestId =
@@ -269,16 +310,15 @@ export default function Game() {
       setChallenge(await api("challenge", {}));
       setReward(null);
       setWriting(true);
-      strokes.current = [];
     });
   }
   function clearCanvas() {
-    canvas.current?.getContext("2d")?.clearRect(0, 0, 320, 320);
-    strokes.current = [];
+    board.current?.clear();
   }
   async function submit() {
-    if (!challenge || !canvas.current || busy || drawing) return;
-    if (!strokes.current.length) {
+    if (!challenge || !board.current || busy || drawing) return;
+    const strokes = board.current.getStrokes();
+    if (!strokes.length) {
       setNotice("글자를 먼저 써 주세요");
       return;
     }
@@ -287,7 +327,7 @@ export default function Game() {
       try {
         const result = await api("submit", {
           id: challenge.id,
-          strokes: strokes.current,
+          strokes,
         });
         setChallenge(null);
         setWriting(false);
@@ -299,50 +339,6 @@ export default function Game() {
         setDrawing(false);
       }
     });
-  }
-  function pointer(e: React.PointerEvent<HTMLCanvasElement>, start = false) {
-    const c = canvas.current!;
-    const rect = c.getBoundingClientRect();
-    const point = {
-      x: Math.max(
-        0,
-        Math.min(320, ((e.clientX - rect.left) / rect.width) * 320),
-      ),
-      y: Math.max(
-        0,
-        Math.min(320, ((e.clientY - rect.top) / rect.height) * 320),
-      ),
-      t: e.timeStamp - started.current,
-    };
-    if (start) {
-      if (busy) return;
-      c.setPointerCapture(e.pointerId);
-      if (!strokes.current.length) {
-        started.current = e.timeStamp;
-        point.t = 0;
-      }
-      strokes.current.push([point]);
-      const ctx = c.getContext("2d")!;
-      ctx.fillStyle = "#244c38";
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
-      ctx.fill();
-      active.current = true;
-      return;
-    }
-    if (!active.current) return;
-    const stroke = strokes.current[strokes.current.length - 1];
-    const prev = stroke[stroke.length - 1];
-    stroke.push(point);
-    const ctx = c.getContext("2d")!;
-    ctx.strokeStyle = "#244c38";
-    ctx.lineWidth = 12;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(prev.x, prev.y);
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
   }
   async function craft(id: number, quantity: number) {
     if (!requireUser()) return;
@@ -928,20 +924,7 @@ export default function Game() {
                 써 주세요
               </h2>
               <p>아래 칸에 손가락으로 글자를 써 주세요.</p>
-              <canvas
-                ref={canvas}
-                width={320}
-                height={320}
-                onPointerDown={(e) => pointer(e, true)}
-                onPointerMove={(e) => pointer(e)}
-                onPointerUp={() => {
-                  active.current = false;
-                }}
-                onPointerCancel={() => {
-                  active.current = false;
-                }}
-                aria-label={`${challenge.letter} 쓰기 입력 영역`}
-              />
+              <WritingBoard ref={board} letter={challenge.letter} />
               <div className="canvas-toolbar">
                 <button onClick={clearCanvas} disabled={busy}>
                   <Trash2 size={16} />
@@ -1083,7 +1066,10 @@ export default function Game() {
                 <X />
               </button>
               <h2>새로운 교환 제안</h2>
-              <p>등록 즉시 제공 아이템은 장터에 보관돼요.</p>
+              <p>
+                도감에 등록된 아이템만 교환할 수 있어요. 등록하면 드려요 수량이
+                보유량에서 즉시 차감되고, 취소하면 돌려받아요.
+              </p>
               <div className="chips">
                 {[
                   ["give", "내가 드려요"],
@@ -1100,10 +1086,14 @@ export default function Game() {
               </div>
               <select
                 className="text-input"
-                value={offerItem}
+                value={selectedOfferItem ?? ""}
+                disabled={!tradeItems.length}
                 onChange={(e) => setOfferItem(Number(e.target.value))}
               >
-                {items.map((i) => (
+                {!tradeItems.length && (
+                  <option value="">선택할 수 있는 아이템이 없습니다</option>
+                )}
+                {tradeItems.map((i) => (
                   <option value={i.id} key={i.id}>
                     #{String(i.id).padStart(3, "0")} · {name(i.id)}{" "}
                     {offerSide === "give" ? `(보유 ${amount(i.id)})` : ""}
@@ -1115,12 +1105,19 @@ export default function Game() {
                 <input
                   type="number"
                   min="1"
-                  max="1000000"
+                  max={
+                    offerSide === "give" && selectedOfferItem !== null
+                      ? Math.min(1000000, inventory[selectedOfferItem] || 0)
+                      : 1000000
+                  }
+                  disabled={selectedOfferItem === null}
                   value={offerQty}
                   onChange={(e) => setOfferQty(Number(e.target.value))}
                 />
                 <button
+                  disabled={selectedOfferItem === null}
                   onClick={() => {
+                    if (selectedOfferItem === null) return;
                     if (
                       !Number.isInteger(offerQty) ||
                       offerQty < 1 ||
@@ -1129,10 +1126,19 @@ export default function Game() {
                       setNotice("수량은 1~1,000,000의 정수로 입력하세요");
                       return;
                     }
+                    if (
+                      offerSide === "give" &&
+                      offerQty > (inventory[selectedOfferItem] || 0)
+                    ) {
+                      setNotice(
+                        `보유 수량(${amount(selectedOfferItem)}개)을 초과할 수 없어요`,
+                      );
+                      return;
+                    }
                     const setter = offerSide === "give" ? setGive : setWant;
                     setter((prev) => [
-                      ...prev.filter((l) => l.itemId !== offerItem),
-                      { itemId: offerItem, quantity: offerQty },
+                      ...prev.filter((l) => l.itemId !== selectedOfferItem),
+                      { itemId: selectedOfferItem, quantity: offerQty },
                     ]);
                   }}
                 >
@@ -1166,9 +1172,16 @@ export default function Game() {
                   ))}
                 </div>
               ))}
+              {!offerAffordable && (
+                <p className="trade-warning">
+                  제공할 아이템의 보유 수량이 부족합니다. 항목을 수정해 주세요.
+                </p>
+              )}
               <button
                 className="primary"
-                disabled={busy || !give.length || !want.length}
+                disabled={
+                  busy || !give.length || !want.length || !offerAffordable
+                }
                 onClick={() =>
                   void run(async () => {
                     await api("offer", { give, want });

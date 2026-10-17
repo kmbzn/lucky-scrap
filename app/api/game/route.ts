@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { waitForDraw } from "@/lib/draw";
+import { assertDiscoveredTrade } from "@/lib/trade-discovery";
 import { sessionClient, adminClient } from "@/lib/server";
 import { strokesSchema } from "@/lib/handwriting";
 export const runtime = "nodejs";
@@ -137,6 +138,21 @@ export async function POST(req: Request) {
             : error.message,
         );
       return NextResponse.json(data);
+    }
+    if (action === "offer") {
+      const offer = schemas.offer.parse(payload);
+      const lines = [...offer.give, ...offer.want];
+      const ids = [...new Set(lines.map((line) => line.itemId))];
+      const { data, error } = await db
+        .from("item_discoveries")
+        .select("item_id")
+        .eq("user_id", user.id)
+        .in("item_id", ids);
+      if (error) throw new Error("도감 등록 정보를 확인할 수 없습니다");
+      assertDiscoveredTrade(
+        lines,
+        new Set((data || []).map((row) => row.item_id)),
+      );
     }
     const admin = adminClient();
     async function mutate(a: string, p: unknown, k = key) {

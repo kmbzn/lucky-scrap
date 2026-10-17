@@ -277,6 +277,14 @@ test(
           const before = await qty(users[0], 1);
           await assert.rejects(
             mutate(users[0], "offer", {
+              give: [{ itemId: 1, quantity: before + 1 }],
+              want: [{ itemId: 2, quantity: 1 }],
+            }),
+            /부족/,
+          );
+          assert.equal(await qty(users[0], 1), before);
+          await assert.rejects(
+            mutate(users[0], "offer", {
               give: [
                 { itemId: 1, quantity: 1 },
                 { itemId: 1, quantity: 1 },
