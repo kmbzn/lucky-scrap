@@ -567,7 +567,7 @@ export default function Game() {
                             {amount(i.id)}
                           </strong>
                           <div className="codex-art">
-                            <Art id={i.id} size={38} />
+                            <Art id={i.id} />
                           </div>
                           <span className="codex-name">{name(i.id)}</span>
                         </button>
