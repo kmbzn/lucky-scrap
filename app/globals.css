@@ -1108,8 +1108,6 @@ h3 {
 }
 .reward-art {
   margin: 15px auto 20px;
-  background: #e6edd9;
-  border-radius: 50%;
   width: 208px;
   height: 208px;
   display: grid;
@@ -1465,10 +1463,6 @@ button {
   background: color-mix(in srgb, var(--reward-color) 9%, #fffefa);
   border-color: color-mix(in srgb, var(--reward-color) 45%, #fffefa);
   color: color-mix(in srgb, var(--reward-color) 65%, #172019);
-}
-.reward .reward-art {
-  background: color-mix(in srgb, var(--reward-color) 19%, #fffefa);
-  border: 1px solid color-mix(in srgb, var(--reward-color) 30%, #fffefa);
 }
 .reward .badge {
   background: color-mix(in srgb, var(--reward-color) 14%, #fffefa);
