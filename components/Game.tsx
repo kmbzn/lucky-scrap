@@ -379,15 +379,11 @@ export default function Game() {
       (i) =>
         matchesItem(i.id, search, discovered) &&
         (tab === "조합" ? i.id >= 24 : true) &&
-        (filter === "자연물"
-          ? i.kind === "natural"
-          : filter === "제작품"
-            ? i.kind === "crafted"
-            : filter === "보유 중"
-              ? (inventory[i.id] || 0) > 0
-              : filter === "제작 가능"
-                ? i.id >= 24 && maxCraft(i.id, inventory) > 0
-                : true),
+        (filter === "보유 중"
+          ? (inventory[i.id] || 0) > 0
+          : filter === "제작 가능"
+            ? i.id >= 24 && maxCraft(i.id, inventory) > 0
+            : true),
     )
     .sort((a, b) =>
       tab === "조합"
@@ -415,7 +411,7 @@ export default function Game() {
         <div className="content">
           {tab === "뽑기" && (
             <>
-              <section className="island" aria-label="자연물 아이템">
+              <section className="island" aria-label="아이템">
                 <span className="pixel-sun" />
                 <span className="cloud cloud-one" />
                 <span className="cloud cloud-two" />
@@ -458,7 +454,6 @@ export default function Game() {
                       <span className="eyebrow">뽑기</span>
                       <h2>아이템 뽑기</h2>
                     </div>
-                    <span className="badge">횟수 제한 없음</span>
                   </div>
                   <p>제시된 한글 한 글자를 쓰면 아이템 하나를 얻어요.</p>
                   <button
@@ -546,7 +541,7 @@ export default function Game() {
                   <div className="chips">
                     {(tab === "조합"
                       ? ["전체", "제작 가능"]
-                      : ["전체", "자연물", "제작품", "보유 중"]
+                      : ["전체", "보유 중"]
                     ).map((t) => (
                       <button
                         className={filter === t ? "selected" : ""}
@@ -568,11 +563,11 @@ export default function Game() {
                           aria-label={`${name(i.id)}, ${discovered.has(i.id) ? "획득" : "미발견"}, 보유 ${amount(i.id)}개`}
                         >
                           <small>{String(i.id).padStart(3, "0")}</small>
+                          <strong className="codex-quantity">
+                            {amount(i.id)}
+                          </strong>
                           <div className="codex-art">
                             <Art id={i.id} size={38} />
-                            <strong className="codex-quantity">
-                              {amount(i.id)}
-                            </strong>
                           </div>
                           <span className="codex-name">{name(i.id)}</span>
                         </button>
@@ -643,7 +638,7 @@ export default function Game() {
                         <div className="empty">
                           아직 제작 가능한 아이템이 없어요.
                           <br />
-                          자연물을 조금 더 모아 보세요.
+                          아이템을 조금 더 모아 보세요.
                         </div>
                       )}
                     </div>
@@ -749,7 +744,7 @@ export default function Game() {
                           >
                             {o.owner_id === state?.userId
                               ? "등록 취소 · 재료 돌려받기"
-                              : "이 조건으로 교환하기"}
+                              : "교환하기"}
                           </button>
                         ) : (
                           <span className="badge">
@@ -808,28 +803,9 @@ export default function Game() {
                       <h2>내 인벤토리</h2>
                       <Package size={18} />
                     </div>
-                    <div className="chips">
-                      {["전체", "자연물", "제작품"].map((f) => (
-                        <button
-                          key={f}
-                          onClick={() => setFilter(f)}
-                          className={filter === f ? "selected" : ""}
-                        >
-                          {f}
-                        </button>
-                      ))}
-                    </div>
                     <div className="inventory-grid">
                       {items
-                        .filter(
-                          (i) =>
-                            (inventory[i.id] || 0) > 0 &&
-                            (filter === "자연물"
-                              ? i.kind === "natural"
-                              : filter === "제작품"
-                                ? i.kind === "crafted"
-                                : true),
-                        )
+                        .filter((i) => (inventory[i.id] || 0) > 0)
                         .map((i) => (
                           <button key={i.id} onClick={() => setDetail(i.id)}>
                             <small>#{String(i.id).padStart(3, "0")}</small>
@@ -842,7 +818,7 @@ export default function Game() {
                     {!Object.values(inventory).some((n) => n > 0) && (
                       <div className="empty">
                         아직 인벤토리가 비어 있어요.
-                        <br />첫 번째 자연물을 발견해 보세요.
+                        <br />첫 번째 아이템을 발견해 보세요.
                       </div>
                     )}
                     <button
@@ -1016,7 +992,7 @@ export default function Game() {
                 <Art id={reward} size={192} reveal />
               </div>
               <span className="badge">
-                자연물 · #{String(reward).padStart(3, "0")}
+                아이템 · #{String(reward).padStart(3, "0")}
               </span>
               <h2>{items[reward].name} ×1</h2>
               <p>인벤토리에 담고 도감에 기록했어요.</p>

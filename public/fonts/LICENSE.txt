@@ -1,0 +1,8 @@
+DungGeunMo + Fixedsys 1.3 (둥근모꼴+Fixedsys)
+Source and distribution: https://cactus.tistory.com/193
+Adaptation: Kil Hyung-jin (길형진 / orioncactus)
+Original DungGeunMo: Kim Jung-tae (김중태)
+Fixedsys Excelsior: Darien Gavin Valentine
+
+The distributor dedicates this font to the public domain, allowing redistribution,
+modification and commercial use. Font file is distributed unmodified.

@@ -15,7 +15,8 @@ html {
 }
 body {
   margin: 0;
-  font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-family: var(--font-game), monospace;
+  font-synthesis: none;
   color: var(--ink);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
@@ -177,7 +178,7 @@ h3 {
   position: absolute;
   top: 15px;
   left: 16px;
-  font-family: monospace;
+  font-family: var(--font-game), monospace;
   font-size: 12px;
   letter-spacing: 1.5px;
   color: #8e9b80;
@@ -372,7 +373,7 @@ h3 {
   font-size: 17px;
 }
 .section-title > span {
-  font-family: monospace;
+  font-family: var(--font-game), monospace;
   font-size: 12px;
   color: #99a08d;
   letter-spacing: 1px;
@@ -401,7 +402,9 @@ h3 {
   position: absolute;
   left: 8px;
   top: 7px;
-  font: 8px monospace;
+  font:
+    8px var(--font-game),
+    monospace;
   color: #a1a98f;
 }
 .how-card img {
@@ -681,6 +684,7 @@ h3 {
   gap: 3px;
 }
 .codex-cell {
+  position: relative;
   min-width: 0;
   padding: 4px 0 5px;
   border: 1px solid #e4e7dc;
@@ -693,7 +697,9 @@ h3 {
   overflow: hidden;
 }
 .codex-cell > small {
-  font: 7px monospace;
+  font:
+    7px var(--font-game),
+    monospace;
   align-self: flex-start;
   padding-left: 3px;
   color: #a1a994;
@@ -726,7 +732,9 @@ h3 {
   display: grid;
   place-items: center;
   color: #a8b39b;
-  font: 24px monospace;
+  font:
+    24px var(--font-game),
+    monospace;
 }
 .recipe-list {
   display: grid;
@@ -749,7 +757,9 @@ h3 {
   border-bottom: 1px solid var(--line);
 }
 .recipe-head small {
-  font: 9px monospace;
+  font:
+    9px var(--font-game),
+    monospace;
   color: #9aa28d;
 }
 .recipe-head h3 {
@@ -933,7 +943,9 @@ h3 {
   gap: 6px;
 }
 .inventory-grid button > small {
-  font: 8px monospace;
+  font:
+    8px var(--font-game),
+    monospace;
   color: #a1ac91;
   align-self: flex-start;
 }
@@ -1116,7 +1128,9 @@ h3 {
   margin: 20px auto 5px;
 }
 .item-modal > .eyebrow {
-  font: 10px monospace;
+  font:
+    10px var(--font-game),
+    monospace;
 }
 .item-modal > h2,
 .item-modal > p {
@@ -1265,7 +1279,7 @@ h3 {
   color: #9aa88b;
   border: 1px dashed #c3cdb6;
   border-radius: 5px;
-  font-family: monospace;
+  font-family: var(--font-game), monospace;
   font-size: 15px;
   letter-spacing: 1px;
   vertical-align: middle;
@@ -1403,12 +1417,12 @@ button {
 }
 .codex-quantity {
   position: absolute;
-  right: 1px;
-  top: 0;
+  right: 2px;
+  top: 2px;
   color: #000;
   font:
-    700 18px/1 Arial,
-    sans-serif;
+    18px/1 var(--font-game),
+    monospace;
   letter-spacing: -1px;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -1465,4 +1479,9 @@ button {
 .reward .primary {
   background: var(--reward-color);
   border-color: var(--reward-color);
+}
+
+.brand {
+  font-size: 32px;
+  letter-spacing: 0;
 }

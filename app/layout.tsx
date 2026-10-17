@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
+const gameFont = localFont({
+  src: "../public/fonts/DungGeunMo.woff2",
+  variable: "--font-game",
+  display: "swap",
+});
 export const metadata: Metadata = {
   title: "Lucky Scrap",
   applicationName: "Lucky Scrap",
@@ -19,7 +25,7 @@ export const viewport: Viewport = {
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={gameFont.variable}>
       <body>{children}</body>
     </html>
   );
