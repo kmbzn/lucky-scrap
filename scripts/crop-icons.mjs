@@ -2,6 +2,7 @@ import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import sharp from "sharp";
+import { normalizePixelArt } from "./normalize-pixel-art.mjs";
 import {
   restoreSpriteAlpha,
   restoreEnclosedAlpha,
@@ -46,7 +47,7 @@ for (let id = 0; id < 64; id++) {
       crop.info.width,
       crop.info.height,
     );
-  await sharp(restored, { raw: crop.info })
+  const padded = await sharp(restored, { raw: crop.info })
     .extend({
       top: padding,
       bottom: padding,
@@ -54,6 +55,14 @@ for (let id = 0; id < 64; id++) {
       right: padding,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const normalized = normalizePixelArt(
+    padded.data,
+    padded.info.width,
+    padded.info.height,
+  );
+  await sharp(normalized, { raw: { width: 48, height: 48, channels: 4 } })
     .png()
     .toFile(
       path.join(root, `public/item-icons/${String(id).padStart(3, "0")}.png`),
@@ -65,7 +74,7 @@ const blank = await sharp(path.join(root, "public/item-icons/000.png"))
 for (let p = 3; p < blank.length; p += 4)
   if (blank[p] !== 0) throw new Error("000은 완전 투명해야 합니다.");
 console.log(
-  "64 icons cropped with transparent safety padding; clipped alpha restored from original RGB pixels.",
+  "64 icons normalized to 48×48; clipped alpha restored, outlines rebuilt, and interior holes filled.",
 );
 
 // App branding uses the original 002 leaf crop; source sprite pixels stay untouched.
@@ -88,10 +97,10 @@ async function appIcon(size, artSize, output) {
     .png()
     .toFile(path.join(root, output));
 }
-await appIcon(192, 160, "public/icons/leaf-192.png");
-await appIcon(512, 432, "public/icons/leaf-512.png");
-await appIcon(512, 288, "public/icons/leaf-maskable-512.png");
-await appIcon(180, 144, "app/apple-icon.png");
+await appIcon(192, 96, "public/icons/leaf-192.png");
+await appIcon(512, 384, "public/icons/leaf-512.png");
+await appIcon(512, 192, "public/icons/leaf-maskable-512.png");
+await appIcon(180, 96, "app/apple-icon.png");
 await copyFile(
   path.join(root, "public/icons/leaf-512.png"),
   path.join(root, "app/icon.png"),

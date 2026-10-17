@@ -28,13 +28,12 @@ test("recursive gold balance and craft availability", () => {
   assert.equal(maxCraft(24, {}), 0);
   assert.deepEqual(baseMaterials(25), { "5": 9 });
 });
-test("original file preserved and 64 padded crops retain RGB pixels and restore clipped alpha", async () => {
+test("original sheet preserved; all 64 icons use a solid 48px grid with no interior holes", async () => {
   assert.deepEqual(
     await readFile("items.png"),
     await readFile("public/items.png"),
   );
-  const original = sharp("public/items.png");
-  const meta = await original.metadata();
+  const meta = await sharp("public/items.png").metadata();
   assert.equal(meta.width, 1254);
   assert.equal(meta.height, 1254);
   assert.equal(meta.channels, 4);
@@ -43,74 +42,53 @@ test("original file preserved and 64 padded crops retain RGB pixels and restore 
       .length,
     64,
   );
-  const edges = [0, 157, 314, 470, 627, 784, 940, 1097, 1254];
   for (let id = 0; id < 64; id++) {
-    const x = id % 8,
-      y = Math.floor(id / 8);
-    const crop = await sharp(
+    const { data, info } = await sharp(
       `public/item-icons/${String(id).padStart(3, "0")}.png`,
     )
       .raw()
       .toBuffer({ resolveWithObject: true });
-    assert.equal(crop.info.width, edges[x + 1] - edges[x] + 24);
-    assert.equal(crop.info.height, edges[y + 1] - edges[y] + 24);
-    const expected = await original
-      .clone()
-      .extract({
-        left: edges[x],
-        top: edges[y],
-        width: edges[x + 1] - edges[x],
-        height: edges[y + 1] - edges[y],
-      })
-      .raw()
-      .toBuffer();
-    const interior = await sharp(crop.data, { raw: crop.info })
-      .extract({
-        left: 12,
-        top: 12,
-        width: edges[x + 1] - edges[x],
-        height: edges[y + 1] - edges[y],
-      })
-      .raw()
-      .toBuffer();
-    for (let pixel = 0; pixel < expected.length; pixel += 4) {
-      assert.deepEqual(
-        interior.subarray(pixel, pixel + 3),
-        expected.subarray(pixel, pixel + 3),
-      );
-      if (expected[pixel + 3])
-        assert.equal(interior[pixel + 3], expected[pixel + 3]);
-      else assert.ok(interior[pixel + 3] === 0 || interior[pixel + 3] === 255);
+    assert.equal(info.width, 48);
+    assert.equal(info.height, 48);
+    let visible = 0;
+    const outside = new Set<number>([0]),
+      queue = [0];
+    for (let cursor = 0; cursor < queue.length; cursor++) {
+      const index = queue[cursor],
+        x = index % 48,
+        y = Math.floor(index / 48);
+      for (const [nx, ny] of [
+        [x - 1, y],
+        [x + 1, y],
+        [x, y - 1],
+        [x, y + 1],
+      ]) {
+        if (nx < 0 || ny < 0 || nx >= 48 || ny >= 48) continue;
+        const next = ny * 48 + nx;
+        if (!outside.has(next) && !data[next * 4 + 3]) {
+          outside.add(next);
+          queue.push(next);
+        }
+      }
     }
-    if (id === 13) {
-      assert.equal(
-        interior[(70 * (edges[x + 1] - edges[x]) + 60) * 4 + 3],
-        255,
-      );
-      assert.equal(interior[(10 * (edges[x + 1] - edges[x]) + 10) * 4 + 3], 0);
+    for (let index = 0; index < 48 * 48; index++) {
+      const offset = index * 4,
+        alpha = data[offset + 3];
+      assert.ok(alpha === 0 || alpha === 255);
+      if (alpha) {
+        visible++;
+        for (let c = 0; c < 3; c++) assert.equal(data[offset + c] % 17, 0);
+      } else
+        assert.ok(
+          outside.has(index),
+          `item ${id} has an enclosed transparent hole`,
+        );
+      const x = index % 48,
+        y = Math.floor(index / 48);
+      if (x === 0 || y === 0 || x === 47 || y === 47) assert.equal(alpha, 0);
     }
-    if (id === 4)
-      assert.equal(
-        interior[(150 * (edges[x + 1] - edges[x]) + 45) * 4 + 3],
-        255,
-      );
-    if (id === 43)
-      assert.equal(
-        interior[(7 * (edges[x + 1] - edges[x]) + 126) * 4 + 3],
-        255,
-      );
-    for (let row = 0; row < crop.info.height; row++)
-      for (let col = 0; col < crop.info.width; col++)
-        if (
-          row < 12 ||
-          col < 12 ||
-          row >= crop.info.height - 12 ||
-          col >= crop.info.width - 12
-        )
-          assert.equal(crop.data[(row * crop.info.width + col) * 4 + 3], 0);
-    if (id === 0)
-      for (let i = 3; i < crop.data.length; i += 4)
-        assert.equal(crop.data[i], 0);
+    if (id === 0) assert.equal(visible, 0);
+    else assert.ok(visible > 100, `item ${id} must retain its artwork`);
   }
 });
 test("any drawing including one tap is accepted; empty or out-of-bounds input rejected", () => {

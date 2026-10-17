@@ -424,19 +424,19 @@ export default function Game() {
                 <div className="sprout sprout-one">✦</div>
                 <div className="sprout sprout-two">✦</div>
                 <div className="scene-art scene-branch">
-                  <Art id={1} size={104} />
+                  <Art id={1} size={96} />
                 </div>
                 <div className="scene-art scene-leaf">
-                  <Art id={2} size={72} />
+                  <Art id={2} size={48} />
                 </div>
                 <div className="scene-art scene-stone">
-                  <Art id={9} size={73} />
+                  <Art id={9} size={48} />
                 </div>
                 <div className="scene-art scene-shell">
-                  <Art id={12} size={65} />
+                  <Art id={12} size={48} />
                 </div>
                 <div className="scene-art scene-gem">
-                  <Art id={22} size={54} />
+                  <Art id={22} size={48} />
                 </div>
               </section>
               {!state ? (
@@ -1013,7 +1013,7 @@ export default function Game() {
             <section className="modal reward">
               <h2>아이템 획득</h2>
               <div className="reward-art">
-                <Art id={reward} size={126} reveal />
+                <Art id={reward} size={192} reveal />
               </div>
               <span className="badge">
                 자연물 · #{String(reward).padStart(3, "0")}
@@ -1050,7 +1050,7 @@ export default function Game() {
                 ITEM #{String(detail).padStart(3, "0")}
               </span>
               <div className="detail-art">
-                <Art id={detail} size={108} />
+                <Art id={detail} size={96} />
               </div>
               <h2>{name(detail)}</h2>
               <p>

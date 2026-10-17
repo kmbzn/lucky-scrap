@@ -1098,8 +1098,8 @@ h3 {
   margin: 15px auto 20px;
   background: #e6edd9;
   border-radius: 50%;
-  width: 160px;
-  height: 160px;
+  width: 208px;
+  height: 208px;
   display: grid;
   place-items: center;
   animation: pop 0.5s ease-out;
