@@ -31,12 +31,6 @@ const schemas = {
   cancel: z.object({ id: z.uuid() }),
 };
 async function authenticated() {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY
-  )
-    throw new Error("서버 설정 필요: Supabase 연결 정보를 입력하세요");
   const db = await sessionClient();
   const {
     data: { user },
@@ -66,9 +60,7 @@ export async function GET(request: Request) {
               )
               .order("created_at", { ascending: false })
               .order("id")
-          : section === "rankings"
-            ? db.from("rankings").select("*").order("rank").order("nickname")
-            : null;
+          : null;
       if (!query) throw new Error("잘못된 목록입니다");
       const { data, error } = await query.range(page * 100, page * 100 + 99);
       if (error) throw new Error(error.message);
@@ -92,13 +84,6 @@ export async function GET(request: Request) {
         .order("created_at", { ascending: false })
         .order("id")
         .limit(100),
-      db
-        .from("rankings")
-        .select("*")
-        .order("rank")
-        .order("nickname")
-        .limit(100),
-      db.from("rankings").select("*").eq("id", user.id).maybeSingle(),
     ]);
     for (const r of results) if (r.error) throw new Error(r.error.message);
     return NextResponse.json(
@@ -108,8 +93,6 @@ export async function GET(request: Request) {
         inventory: results[1].data,
         discoveries: results[2].data,
         offers: results[3].data,
-        rankings: results[4].data,
-        myRank: results[5].data,
         ocrConfigured: Boolean(process.env.GOOGLE_VISION_API_KEY),
       },
       { headers: { "Cache-Control": "no-store" } },
@@ -136,7 +119,7 @@ export async function POST(req: Request) {
         { error: "입력이 너무 큽니다" },
         { status: 413 },
       );
-    const { user } = await authenticated();
+    const { db, user } = await authenticated();
     const raw = await req.text();
     if (raw.length > 600000) throw new Error("입력이 너무 큽니다");
     const body = JSON.parse(raw);
@@ -144,6 +127,20 @@ export async function POST(req: Request) {
     if (!Object.hasOwn(schemas, action)) throw new Error("잘못된 요청입니다");
     const payload = schemas[action].parse(body.payload);
     const key = z.uuid().parse(body.requestId);
+    if (action === "nickname") {
+      const { data, error } = await db.rpc("set_nickname", {
+        new_nickname: schemas.nickname.parse(payload).nickname,
+      });
+      if (error)
+        throw new Error(
+          error.code === "23505"
+            ? "이미 사용 중인 닉네임입니다"
+            : error.message,
+        );
+      return NextResponse.json(data);
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
+      throw new Error("서버 설정 필요: Supabase service_role 키를 설정하세요");
     const admin = adminClient();
     async function mutate(a: string, p: unknown, k = key) {
       const { data, error } = await admin.rpc("game_mutate", {

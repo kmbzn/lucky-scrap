@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import pg from "pg";
 const url = process.env.TEST_DATABASE_URL;
 test(
-  "PostgreSQL atomic economy, replay, escrow races, RLS and ranking integration",
+  "PostgreSQL atomic economy, replay, escrow races, RLS integration",
   { skip: !url },
   async (t) => {
     const root = new pg.Client({ connectionString: url });
@@ -47,12 +47,10 @@ test(
     try {
       await pool.query(`do $$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon; end if; if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated; end if; if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role bypassrls; end if; end $$;
  create schema auth;create schema extensions;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;grant usage on schema public,auth to authenticated,anon,service_role;create publication supabase_realtime;`);
-      await pool.query(
-        await readFile("supabase/migrations/202610170001_game.sql", "utf8"),
-      );
-      await pool.query(
-        await readFile("supabase/migrations/202610170002_catalog.sql", "utf8"),
-      );
+      for (const file of (await readdir("supabase/migrations"))
+        .filter((f) => f.endsWith(".sql"))
+        .sort())
+        await pool.query(await readFile(`supabase/migrations/${file}`, "utf8"));
       await pool.query(await readFile("supabase/seed.sql", "utf8"));
       for (let i = 0; i < users.length; i++) {
         await pool.query("insert into auth.users values($1)", [users[i]]);
@@ -307,30 +305,15 @@ test(
         },
       );
       await t.test(
-        "discovery persists after spending; trophy ranking changes with escrow and refund",
+        "discovery persists and trophies are conserved through escrow and refund",
         async () => {
-          const before = Number(
-            (
-              await pool.query("select trophies from rankings where id=$1", [
-                users[0],
-              ])
-            ).rows[0].trophies,
-          );
+          const before = await qty(users[0], 63);
           assert.ok(before > 0);
           const o = await mutate(users[0], "offer", {
             give: [{ itemId: 63, quantity: 1 }],
             want: [{ itemId: 1, quantity: 1 }],
           });
-          assert.equal(
-            Number(
-              (
-                await pool.query("select trophies from rankings where id=$1", [
-                  users[0],
-                ])
-              ).rows[0].trophies,
-            ),
-            before - 1,
-          );
+          assert.equal(await qty(users[0], 63), before - 1);
           assert.equal(
             (
               await pool.query(
@@ -341,16 +324,45 @@ test(
             1,
           );
           await mutate(users[0], "cancel", { id: o.id });
-          assert.equal(
-            Number(
-              (
-                await pool.query("select trophies from rankings where id=$1", [
-                  users[0],
-                ])
-              ).rows[0].trophies,
-            ),
-            before,
-          );
+          assert.equal(await qty(users[0], 63), before);
+        },
+      );
+      await t.test(
+        "nickname RPC uses authenticated identity and rejects anon and invalid names",
+        async () => {
+          const client = await pool.connect();
+          try {
+            await client.query("set role authenticated");
+            await client.query(
+              "select set_config('request.jwt.claim.sub',$1,false)",
+              [users[1]],
+            );
+            await client.query("select set_nickname($1)", ["로그인테스트"]);
+            const rows = await client.query(
+              "select id,nickname from profiles where id=any($1::uuid[])",
+              [users],
+            );
+            assert.equal(
+              rows.rows.find((r) => r.id === users[1]).nickname,
+              "로그인테스트",
+            );
+            assert.equal(
+              rows.rows.find((r) => r.id === users[0]).nickname,
+              "테스터0",
+            );
+            await assert.rejects(
+              client.query("select set_nickname($1)", ["!"]),
+              /닉네임/,
+            );
+            await client.query("set role anon");
+            await assert.rejects(
+              client.query("select set_nickname($1)", ["익명사용자"]),
+              /permission denied/,
+            );
+          } finally {
+            await client.query("reset role");
+            client.release();
+          }
         },
       );
       await t.test(
@@ -394,8 +406,9 @@ test(
               ]),
               /permission denied/,
             );
-            assert.ok(
-              (await client.query("select * from rankings")).rowCount! > 0,
+            await assert.rejects(
+              client.query("select * from rankings"),
+              /does not exist/,
             );
           } finally {
             await client.query("reset role");

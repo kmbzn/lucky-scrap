@@ -1,4 +1,4 @@
-project_id = "jogak-island"
+project_id = "lucky-scrap"
 [api]
 enabled = true
 port = 54321

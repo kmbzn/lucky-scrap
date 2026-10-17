@@ -18,14 +18,13 @@ import {
   ShoppingBasket,
   Sparkles,
   Trash2,
-  Trophy,
   UserRound,
   X,
 } from "lucide-react";
 import { items, icon, maxCraft } from "@/lib/items";
 import { browserClient, configured } from "@/lib/supabase";
 import type { Stroke } from "@/lib/handwriting";
-type Tab = "뽑기" | "조합" | "장터" | "도감" | "내정보" | "랭킹";
+type Tab = "뽑기" | "조합" | "장터" | "도감" | "내정보";
 type Line = { itemId: number; quantity: number };
 type Offer = {
   id: string;
@@ -36,15 +35,12 @@ type Offer = {
   profiles: { nickname: string };
   trade_offer_lines: { side: string; item_id: number; quantity: number }[];
 };
-type Ranking = { id: string; nickname: string; trophies: string; rank: number };
 type State = {
   userId: string;
   profile: { nickname: string | null };
   inventory: { item_id: number; quantity: string }[];
   discoveries: { item_id: number }[];
   offers: Offer[];
-  rankings: Ranking[];
-  myRank: Ranking | null;
   ocrConfigured: boolean;
 };
 const tabs = [
@@ -119,8 +115,15 @@ export default function Game() {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((_event, session) => {
-      if (!session) setState(null);
-      else setTimeout(() => void refresh(), 0);
+      if (!session) {
+        setState(null);
+        if (new URLSearchParams(location.search).has("error")) {
+          setNotice(
+            "카카오 로그인에 실패했습니다. 카카오 설정을 확인하고 다시 시도해 주세요",
+          );
+          history.replaceState(null, "", location.pathname);
+        }
+      } else setTimeout(() => void refresh(), 0);
     });
     const channel = client
       .channel("game")
@@ -137,11 +140,6 @@ export default function Game() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "item_discoveries" },
-        () => void refresh(),
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "trophy_updates" },
         () => void refresh(),
       )
       .subscribe();
@@ -182,7 +180,7 @@ export default function Game() {
       setBusy(false);
     }
   }
-  async function loadMore(section: "offers" | "rankings") {
+  async function loadMore(section: "offers") {
     if (!state) return;
     await run(async () => {
       const page = Math.floor(state[section].length / 100);
@@ -333,39 +331,14 @@ export default function Game() {
           <span className="brand-mark">
             <Leaf size={20} />
           </span>
-          <span>
-            조각섬<small>작은 발견이 모이는 곳</small>
-          </span>
-        </button>
-        <button
-          className="rank-button"
-          onClick={() => changeTab("랭킹")}
-          aria-label="전체 랭킹"
-        >
-          <Trophy size={17} />
-          <span>랭킹</span>
+          <span>Lucky Scrap</span>
         </button>
       </header>
       <div className="content">
         {tab === "뽑기" && (
           <>
-            <div className="eyebrow">
-              <span className="live-dot" /> 나만의 작은 수집 생활
-            </div>
-            <h1>
-              한 글자에서 시작되는
-              <br />
-              <em>새로운 발견.</em>
-            </h1>
-            <p className="intro">
-              자연을 모으고, 나만의 물건을 만들고.
-              <br />
-              조각조각, 당신만의 섬을 채워 보세요.
-            </p>
-            <section className="island" aria-label="아이템으로 꾸민 작은 섬">
-              <span className="island-caption">
-                A LITTLE DISCOVERY, EVERY DAY
-              </span>
+            <h1>수집 · 조합 · 교환</h1>
+            <section className="island" aria-label="자연물 아이템">
               <span className="pixel-sun" />
               <span className="cloud cloud-one" />
               <span className="cloud cloud-two" />
@@ -388,9 +361,6 @@ export default function Game() {
               <div className="scene-art scene-gem">
                 <Art id={22} size={54} />
               </div>
-              <span className="floating-tag">
-                <Sparkles size={12} /> 오늘은 어떤 발견을 할까요?
-              </span>
             </section>
             {!state ? (
               <>
@@ -403,16 +373,13 @@ export default function Game() {
                   카카오로 시작하기
                   <ArrowRight size={18} />
                 </button>
-                <p className="login-caption">
-                  가입도 간편하게, 카카오 계정 하나로.
-                </p>
               </>
             ) : (
               <section className="draw-card">
                 <div className="row">
                   <div>
-                    <span className="eyebrow">오늘의 발견</span>
-                    <h2>손끝으로 자연을 만나요</h2>
+                    <span className="eyebrow">뽑기</span>
+                    <h2>자연물 뽑기</h2>
                   </div>
                   <span className="badge">횟수 제한 없음</span>
                 </div>
@@ -430,8 +397,7 @@ export default function Game() {
               </section>
             )}
             <div className="section-title">
-              <h2>작은 조각, 무한한 가능성</h2>
-              <span>HOW TO PLAY</span>
+              <h2>플레이 방법</h2>
             </div>
             <div className="how-grid">
               {[
@@ -467,14 +433,13 @@ export default function Game() {
                 <Art id={63} size={57} />
               </div>
               <div>
-                <small>우리의 가장 빛나는 목표</small>
-                <h3>작은 조각이 모여, 우승 트로피로</h3>
-                <p>63가지 발견 끝에 기다리는 특별한 순간</p>
+                <h3>우승 트로피</h3>
+                <p>조합법 확인</p>
               </div>
               <ChevronRight size={18} />
             </button>
             <div className="section-title">
-              <h2>섬에서 만나는 것들</h2>
+              <h2>아이템</h2>
               <button onClick={() => changeTab("도감")}>
                 도감 보기 <ArrowRight size={13} />
               </button>
@@ -487,26 +452,20 @@ export default function Game() {
                 </button>
               ))}
             </div>
-            <p className="footnote">
-              서두르지 않아도 괜찮아요. 발견은 언제나 여기 있으니까요.
-            </p>
           </>
         )}
         {tab !== "뽑기" && (
           <>
             <div className="page-title">
               <div>
-                <div className="eyebrow">MY LITTLE ISLAND</div>
                 <h1>
                   {tab === "조합"
-                    ? "작은 작업실"
+                    ? "조합"
                     : tab === "장터"
-                      ? "서로의 발견을 나눠요"
+                      ? "장터"
                       : tab === "도감"
-                        ? "나의 발견 도감"
-                        : tab === "랭킹"
-                          ? "빛나는 수집가들"
-                          : "나의 작은 섬"}
+                        ? "도감"
+                        : "내정보"}
                 </h1>
               </div>
               {tab === "조합" ? (
@@ -515,8 +474,6 @@ export default function Game() {
                 <ShoppingBasket size={28} />
               ) : tab === "도감" ? (
                 <BookOpen size={28} />
-              ) : tab === "랭킹" ? (
-                <Trophy size={28} />
               ) : (
                 <UserRound size={28} />
               )}
@@ -525,8 +482,8 @@ export default function Game() {
               <>
                 <p className="subtext">
                   {tab === "도감"
-                    ? "한 번의 발견은 영원히 기록돼요."
-                    : "차곡차곡 모은 재료로 새로운 것을 만들어 보세요."}
+                    ? "획득 기록은 아이템을 사용한 뒤에도 유지됩니다."
+                    : "보유한 재료로 아이템을 제작하세요."}
                 </p>
                 {tab === "도감" && (
                   <section className="collection-card">
@@ -787,46 +744,6 @@ export default function Game() {
                 )}
               </>
             )}
-            {tab === "랭킹" && (
-              <>
-                <div className="ranking-hero">
-                  <Art id={63} size={96} />
-                  <h2>지금, 가장 빛나는 섬</h2>
-                  <p>우승 트로피 현재 보유량으로 경쟁해요.</p>
-                  <small>같은 수량은 공동 순위 · 표시 순서는 닉네임순</small>
-                </div>
-                {state?.myRank && (
-                  <div className="my-rank">
-                    <span>
-                      나의 순위 <b>{state.myRank.rank}위</b>
-                    </span>
-                    <strong>
-                      {state.myRank.trophies} <Trophy size={16} />
-                    </strong>
-                  </div>
-                )}
-                {state?.rankings.map((r) => (
-                  <div className="ranking-row" key={r.id}>
-                    <span className="rank-number">{r.rank}</span>
-                    <span>
-                      {r.nickname}
-                      {r.id === state.userId && (
-                        <small className="badge">나</small>
-                      )}
-                    </span>
-                    <strong>
-                      {r.trophies}
-                      <Trophy size={16} />
-                    </strong>
-                  </div>
-                ))}
-                {!state && (
-                  <div className="empty">
-                    로그인 후 전체 랭킹을 확인할 수 있어요.
-                  </div>
-                )}
-              </>
-            )}
             {tab === "내정보" &&
               (state ? (
                 <>
@@ -834,8 +751,7 @@ export default function Game() {
                     <div className="avatar">
                       <Leaf size={30} />
                     </div>
-                    <h2>{state.profile.nickname}의 섬</h2>
-                    <p>매일 조금씩, 나만의 수집 생활</p>
+                    <h2>{state.profile.nickname}</h2>
                     <div className="profile-stats">
                       <div>
                         <strong>{amount(63)}</strong>
@@ -847,10 +763,6 @@ export default function Game() {
                           <em>/63</em>
                         </strong>
                         <small>발견한 아이템</small>
-                      </div>
-                      <div>
-                        <strong>{state.myRank?.rank || "—"}</strong>
-                        <small>전체 순위</small>
                       </div>
                     </div>
                   </section>
@@ -905,12 +817,6 @@ export default function Game() {
                     내 거래 기록 <ChevronRight size={18} />
                   </button>
                   <button
-                    className="menu-row"
-                    onClick={() => changeTab("랭킹")}
-                  >
-                    전체 랭킹 <ChevronRight size={18} />
-                  </button>
-                  <button
                     className="logout"
                     onClick={() =>
                       void run(async () => {
@@ -928,7 +834,7 @@ export default function Game() {
               ) : (
                 <div className="empty">
                   <UserRound size={40} />
-                  <h2>나만의 섬을 시작해 볼까요?</h2>
+                  <h2>Lucky Scrap 로그인</h2>
                   <p>카카오 로그인으로 수집 기록을 안전하게 보관해요.</p>
                   <button className="kakao" onClick={() => void login()}>
                     카카오로 시작하기 <ArrowRight size={18} />
@@ -944,15 +850,6 @@ export default function Game() {
             onClick={() => void loadMore("offers")}
           >
             이전 거래 더 불러오기 <ChevronRight size={16} />
-          </button>
-        )}
-        {tab === "랭킹" && state && state.rankings.length >= 100 && (
-          <button
-            className="load-more"
-            disabled={busy}
-            onClick={() => void loadMore("rankings")}
-          >
-            다음 순위 더 불러오기 <ChevronRight size={16} />
           </button>
         )}
       </div>
@@ -983,7 +880,7 @@ export default function Game() {
         <div className="overlay">
           <section className="modal">
             <Leaf size={32} />
-            <h2>섬에서 부를 이름을 알려 주세요</h2>
+            <h2>닉네임을 설정해 주세요</h2>
             <p>한글, 영문, 숫자, 밑줄 2~12자</p>
             <input
               className="text-input"
@@ -1002,7 +899,7 @@ export default function Game() {
                 })
               }
             >
-              나의 섬 시작하기 <ArrowRight size={18} />
+              시작하기 <ArrowRight size={18} />
             </button>
           </section>
         </div>
@@ -1022,7 +919,7 @@ export default function Game() {
             >
               <X />
             </button>
-            <div className="eyebrow">한 글자, 한 번의 발견</div>
+            <div className="eyebrow">한글 자필 인증</div>
             <h2>
               <em>{challenge.letter}</em>를 써 주세요
             </h2>
@@ -1062,8 +959,7 @@ export default function Game() {
       {reward !== null && (
         <div className="overlay">
           <section className="modal reward">
-            <span className="eyebrow">A NEW DISCOVERY!</span>
-            <h2>작은 발견, 반가워요!</h2>
+            <h2>아이템 획득</h2>
             <div className="reward-art">
               <Art id={reward} size={126} />
             </div>
@@ -1080,7 +976,7 @@ export default function Game() {
               한 번 더 발견하기 <RefreshCw size={17} />
             </button>
             <button className="plain" onClick={() => setReward(null)}>
-              섬으로 돌아가기
+              돌아가기
             </button>
           </section>
         </div>

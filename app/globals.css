@@ -115,20 +115,6 @@ svg {
   );
   color: #58744a;
 }
-.rank-button {
-  height: 33px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #687453;
-  border: 1px solid #dce0cf;
-  border-radius: 5px;
-  padding: 0 10px;
-}
-.rank-button svg {
-  color: #a3904f;
-}
 .content {
   padding: 29px 25px 115px;
 }
@@ -880,59 +866,6 @@ h3 {
   background: #8caa70;
   border-radius: 50%;
 }
-.ranking-hero {
-  text-align: center;
-  padding: 15px 0 25px;
-}
-.ranking-hero img {
-  margin: 0 auto 12px;
-  display: block;
-}
-.ranking-hero p {
-  font-size: 11px;
-  color: #8f9a7e;
-}
-.ranking-hero > small {
-  font-size: 9px;
-  color: #a0a88f;
-}
-.my-rank {
-  padding: 16px;
-  background: #e6edda;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  border-radius: 5px;
-}
-.my-rank b {
-  margin-left: 6px;
-}
-.my-rank strong {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ranking-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 17px 10px;
-  border-bottom: 1px solid var(--line);
-}
-.rank-number {
-  font-family: monospace;
-  color: #849472;
-  min-width: 22px;
-}
-.ranking-row strong {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ranking-row strong svg {
-  color: #baa05f;
-}
 .profile-card {
   text-align: center;
   padding: 24px 12px;
@@ -957,7 +890,7 @@ h3 {
 }
 .profile-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   margin-top: 25px;
 }
 .profile-stats > div {
@@ -1297,9 +1230,6 @@ h3 {
     padding: 24px 17px;
   }
   .how-card p {
-    font-size: 8px;
-  }
-  .ranking-hero > small {
     font-size: 8px;
   }
 }

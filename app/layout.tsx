@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "조각섬 · 나만의 작은 수집",
-  description: "한 글자로 발견하고, 조합하고, 서로 나누는 픽셀 수집 게임",
+  title: "Lucky Scrap",
+  description: "아이템 수집·조합·물물교환 게임",
   manifest: "/manifest.webmanifest",
 };
 export const viewport: Viewport = {
