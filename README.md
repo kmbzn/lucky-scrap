@@ -34,7 +34,7 @@ npm run build
 npm start
 ```
 
-빌드 직전에 Node.js sharp로 아이콘을 생성합니다. Python 설치는 필요 없습니다. `scripts/crop_icons.py`는 별도의 대체 크롭 도구이며 Pillow가 필요합니다.
+빌드 직전에 Node.js sharp로 아이콘을 생성합니다. Python 설치는 필요 없습니다. `scripts/crop_icons.py`도 동일한 Node.js 크롭 파이프라인을 실행합니다.
 
 ## 환경변수
 
@@ -104,7 +104,7 @@ DB 함수는 transaction advisory lock과 행 잠금을 사용합니다. 제작 
 
 ## 원본 아트와 대표 아이콘
 
-`public/items.png`는 제공된 1254×1254 RGBA 원본을 보존합니다. `scripts/crop-icons.mjs`가 경계 `[0,157,314,470,627,784,940,1097,1254]`를 사용해 원본 픽셀을 유지하고 사방에 투명 여백 12px을 추가한 64개 아이콘을 생성합니다. 000은 완전 투명합니다. UI는 `image-rendering: pixelated`로 표시합니다.
+`public/items.png`는 제공된 1254×1254 RGBA 원본을 보존합니다. `scripts/crop-icons.mjs`가 경계 `[0,157,314,470,627,784,940,1097,1254]`를 사용해 원본 RGB 픽셀을 유지하고, 투명 처리로 잘린 가장자리는 원본 색상에서 복원한 뒤 사방에 투명 여백 12px을 추가한 64개 아이콘을 생성합니다. 000은 완전 투명합니다. UI는 `image-rendering: pixelated`로 표시합니다.
 
 대표 아이콘은 **원본 002번 나뭇잎 아이템 스프라이트**입니다. 별도로 다시 그리지 않습니다. 앱용 파일에만 nearest-neighbor 확대와 홈 화면용 배경·여백을 적용합니다. 원본 시트와 아이템 크롭은 변경하지 않습니다.
 

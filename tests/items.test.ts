@@ -28,7 +28,7 @@ test("recursive gold balance and craft availability", () => {
   assert.equal(maxCraft(24, {}), 0);
   assert.deepEqual(baseMaterials(25), { "5": 9 });
 });
-test("original file preserved and 64 padded crops retain exact RGBA pixels", async () => {
+test("original file preserved and 64 padded crops retain RGB pixels and restore clipped alpha", async () => {
   assert.deepEqual(
     await readFile("items.png"),
     await readFile("public/items.png"),
@@ -73,7 +73,25 @@ test("original file preserved and 64 padded crops retain exact RGBA pixels", asy
       })
       .raw()
       .toBuffer();
-    assert.deepEqual(interior, expected);
+    for (let pixel = 0; pixel < expected.length; pixel += 4) {
+      assert.deepEqual(
+        interior.subarray(pixel, pixel + 3),
+        expected.subarray(pixel, pixel + 3),
+      );
+      if (expected[pixel + 3])
+        assert.equal(interior[pixel + 3], expected[pixel + 3]);
+      else assert.ok(interior[pixel + 3] === 0 || interior[pixel + 3] === 255);
+    }
+    if (id === 4)
+      assert.equal(
+        interior[(150 * (edges[x + 1] - edges[x]) + 45) * 4 + 3],
+        255,
+      );
+    if (id === 43)
+      assert.equal(
+        interior[(7 * (edges[x + 1] - edges[x]) + 126) * 4 + 3],
+        255,
+      );
     for (let row = 0; row < crop.info.height; row++)
       for (let col = 0; col < crop.info.width; col++)
         if (

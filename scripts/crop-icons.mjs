@@ -2,6 +2,7 @@ import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import sharp from "sharp";
+import { restoreSpriteAlpha } from "./restore-sprite-alpha.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const original = path.join(root, "items.png");
@@ -22,13 +23,21 @@ const edges = [0, 157, 314, 470, 627, 784, 940, 1097, 1254];
 for (let id = 0; id < 64; id++) {
   const col = id % 8;
   const row = Math.floor(id / 8);
-  await sharp(target)
+  const crop = await sharp(target)
     .extract({
       left: edges[col],
       top: edges[row],
       width: edges[col + 1] - edges[col],
       height: edges[row + 1] - edges[row],
     })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const restored = restoreSpriteAlpha(
+    crop.data,
+    crop.info.width,
+    crop.info.height,
+  );
+  await sharp(restored, { raw: crop.info })
     .extend({
       top: padding,
       bottom: padding,
@@ -47,7 +56,7 @@ const blank = await sharp(path.join(root, "public/item-icons/000.png"))
 for (let p = 3; p < blank.length; p += 4)
   if (blank[p] !== 0) throw new Error("000은 완전 투명해야 합니다.");
 console.log(
-  "64 icons cropped with transparent safety padding; original RGBA pixels preserved.",
+  "64 icons cropped with transparent safety padding; clipped alpha restored from original RGB pixels.",
 );
 
 // App branding uses the original 002 leaf crop; source sprite pixels stay untouched.
