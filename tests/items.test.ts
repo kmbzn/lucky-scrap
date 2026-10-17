@@ -82,6 +82,13 @@ test("original file preserved and 64 padded crops retain RGB pixels and restore 
         assert.equal(interior[pixel + 3], expected[pixel + 3]);
       else assert.ok(interior[pixel + 3] === 0 || interior[pixel + 3] === 255);
     }
+    if (id === 13) {
+      assert.equal(
+        interior[(70 * (edges[x + 1] - edges[x]) + 60) * 4 + 3],
+        255,
+      );
+      assert.equal(interior[(10 * (edges[x + 1] - edges[x]) + 10) * 4 + 3], 0);
+    }
     if (id === 4)
       assert.equal(
         interior[(150 * (edges[x + 1] - edges[x]) + 45) * 4 + 3],

@@ -2,7 +2,10 @@ import { copyFile, mkdir, access, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import sharp from "sharp";
-import { restoreSpriteAlpha } from "./restore-sprite-alpha.mjs";
+import {
+  restoreSpriteAlpha,
+  restoreEnclosedAlpha,
+} from "./restore-sprite-alpha.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const original = path.join(root, "items.png");
@@ -32,11 +35,17 @@ for (let id = 0; id < 64; id++) {
     })
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const restored = restoreSpriteAlpha(
+  let restored = restoreSpriteAlpha(
     crop.data,
     crop.info.width,
     crop.info.height,
   );
+  if (id === 13)
+    restored = restoreEnclosedAlpha(
+      restored,
+      crop.info.width,
+      crop.info.height,
+    );
   await sharp(restored, { raw: crop.info })
     .extend({
       top: padding,

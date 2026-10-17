@@ -42,3 +42,33 @@ export function restoreSpriteAlpha(data, width, height, channels = 4) {
   }
   return result;
 }
+
+// Coal's dark interior was removed as if it were background. Only enclosed
+// transparent regions are restored; the exterior remains transparent.
+export function restoreEnclosedAlpha(data, width, height) {
+  const result = Buffer.from(data);
+  const outside = new Uint8Array(width * height);
+  const queue = [0];
+  outside[0] = 1;
+  for (let cursor = 0; cursor < queue.length; cursor++) {
+    const index = queue[cursor],
+      x = index % width,
+      y = Math.floor(index / width);
+    for (const [nx, ny] of [
+      [x - 1, y],
+      [x + 1, y],
+      [x, y - 1],
+      [x, y + 1],
+    ]) {
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const next = ny * width + nx;
+      if (!outside[next] && !data[next * 4 + 3]) {
+        outside[next] = 1;
+        queue.push(next);
+      }
+    }
+  }
+  for (let index = 0; index < outside.length; index++)
+    if (!outside[index]) result[index * 4 + 3] = 255;
+  return result;
+}

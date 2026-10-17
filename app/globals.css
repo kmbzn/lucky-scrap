@@ -1441,3 +1441,28 @@ button {
 .home .island {
   margin-bottom: 14px;
 }
+
+.reward-overlay {
+  background: color-mix(in srgb, var(--reward-color) 48%, transparent);
+}
+.reward {
+  background: color-mix(in srgb, var(--reward-color) 9%, #fffefa);
+  border-color: color-mix(in srgb, var(--reward-color) 45%, #fffefa);
+  color: color-mix(in srgb, var(--reward-color) 65%, #172019);
+}
+.reward .reward-art {
+  background: color-mix(in srgb, var(--reward-color) 19%, #fffefa);
+  border: 1px solid color-mix(in srgb, var(--reward-color) 30%, #fffefa);
+}
+.reward .badge {
+  background: color-mix(in srgb, var(--reward-color) 14%, #fffefa);
+  color: var(--reward-color);
+}
+.reward p,
+.reward .plain {
+  color: color-mix(in srgb, var(--reward-color) 75%, #354039);
+}
+.reward .primary {
+  background: var(--reward-color);
+  border-color: var(--reward-color);
+}

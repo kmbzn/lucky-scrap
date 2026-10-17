@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import {
+  type CSSProperties,
   createContext,
   useContext,
   useCallback,
@@ -29,6 +30,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { rewardColors } from "@/lib/reward-colors";
 import { items, icon, maxCraft } from "@/lib/items";
 import { itemName, matchesItem } from "@/lib/discovery";
 import { itemDescriptions } from "@/lib/item-descriptions";
@@ -1000,7 +1002,14 @@ export default function Game() {
           </div>
         )}
         {reward !== null && !drawing && (
-          <div className="overlay">
+          <div
+            className="overlay reward-overlay"
+            style={
+              {
+                "--reward-color": rewardColors[reward] ?? "#526345",
+              } as CSSProperties
+            }
+          >
             <section className="modal reward">
               <h2>아이템 획득</h2>
               <div className="reward-art">
