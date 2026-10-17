@@ -1404,7 +1404,7 @@ button {
 .codex-quantity {
   position: absolute;
   right: 1px;
-  bottom: 0;
+  top: 0;
   color: #000;
   font:
     700 18px/1 Arial,
