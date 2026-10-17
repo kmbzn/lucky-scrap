@@ -344,6 +344,14 @@ export default function Game() {
     if (!requireUser()) return;
     await run(async () => {
       await api("craft", { itemId: id, quantity });
+      setState((current) =>
+        current && !current.discoveries.some((item) => item.item_id === id)
+          ? {
+              ...current,
+              discoveries: [...current.discoveries, { item_id: id }],
+            }
+          : current,
+      );
       await refresh();
       setNotice(`${items[id].name} ${quantity}개를 만들었어요!`);
     });
@@ -483,7 +491,7 @@ export default function Game() {
                   <p className="subtext">
                     {tab === "도감"
                       ? "획득 기록은 아이템을 사용한 뒤에도 유지됩니다."
-                      : "보유한 재료로 아이템을 제작하세요."}
+                      : "??? 아이템도 재료가 충분하면 제작할 수 있어요. 제작하면 이름과 모습이 공개돼요."}
                   </p>
                   {tab === "도감" && (
                     <section className="collection-card">

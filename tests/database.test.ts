@@ -72,6 +72,15 @@ test(
           for (const item of data.filter((i: { id: number }) => i.id >= 24)) {
             for (const [id, n] of Object.entries(item.recipe))
               await grant(users[0], Number(id), Number(n));
+            const knownBefore = await pool.query(
+              "select 1 from item_discoveries where user_id=$1 and item_id=$2",
+              [users[0], item.id],
+            );
+            assert.equal(
+              knownBefore.rowCount,
+              0,
+              "recipe output starts undiscovered",
+            );
             const before = await qty(users[0], item.id);
             const inputs = await Promise.all(
               Object.keys(item.recipe).map(async (id) => [
@@ -81,6 +90,16 @@ test(
             );
             await mutate(users[0], "craft", { itemId: item.id, quantity: 1 });
             assert.equal(await qty(users[0], item.id), before + 1);
+            assert.equal(
+              (
+                await pool.query(
+                  "select 1 from item_discoveries where user_id=$1 and item_id=$2",
+                  [users[0], item.id],
+                )
+              ).rowCount,
+              1,
+              "crafting discovers the output",
+            );
             for (const [id, n] of inputs)
               assert.equal(await qty(users[0], id), n - item.recipe[id]);
           }
