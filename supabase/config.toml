@@ -1,0 +1,22 @@
+project_id = "jogak-island"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[db]
+port = 54322
+major_version = 16
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+[realtime]
+enabled = true
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+enable_signup = true
+[auth.email]
+enable_signup = false

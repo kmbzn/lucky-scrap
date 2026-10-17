@@ -1,0 +1,577 @@
+[
+  {
+    "id": 0,
+    "name": "무(無)",
+    "kind": "secret",
+    "weight": 0,
+    "recipe": {}
+  },
+  {
+    "id": 1,
+    "name": "나뭇가지",
+    "kind": "natural",
+    "weight": 100,
+    "recipe": {}
+  },
+  {
+    "id": 2,
+    "name": "나뭇잎",
+    "kind": "natural",
+    "weight": 90,
+    "recipe": {}
+  },
+  {
+    "id": 3,
+    "name": "나무껍질",
+    "kind": "natural",
+    "weight": 80,
+    "recipe": {}
+  },
+  {
+    "id": 4,
+    "name": "볏짚",
+    "kind": "natural",
+    "weight": 90,
+    "recipe": {}
+  },
+  {
+    "id": 5,
+    "name": "목화",
+    "kind": "natural",
+    "weight": 80,
+    "recipe": {}
+  },
+  {
+    "id": 6,
+    "name": "덩굴",
+    "kind": "natural",
+    "weight": 70,
+    "recipe": {}
+  },
+  {
+    "id": 7,
+    "name": "동물 가죽",
+    "kind": "natural",
+    "weight": 50,
+    "recipe": {}
+  },
+  {
+    "id": 8,
+    "name": "깃털",
+    "kind": "natural",
+    "weight": 60,
+    "recipe": {}
+  },
+  {
+    "id": 9,
+    "name": "돌멩이",
+    "kind": "natural",
+    "weight": 70,
+    "recipe": {}
+  },
+  {
+    "id": 10,
+    "name": "모래",
+    "kind": "natural",
+    "weight": 60,
+    "recipe": {}
+  },
+  {
+    "id": 11,
+    "name": "점토",
+    "kind": "natural",
+    "weight": 50,
+    "recipe": {}
+  },
+  {
+    "id": 12,
+    "name": "조개껍데기",
+    "kind": "natural",
+    "weight": 50,
+    "recipe": {}
+  },
+  {
+    "id": 13,
+    "name": "석탄",
+    "kind": "natural",
+    "weight": 30,
+    "recipe": {}
+  },
+  {
+    "id": 14,
+    "name": "철광석",
+    "kind": "natural",
+    "weight": 30,
+    "recipe": {}
+  },
+  {
+    "id": 15,
+    "name": "구리광석",
+    "kind": "natural",
+    "weight": 25,
+    "recipe": {}
+  },
+  {
+    "id": 16,
+    "name": "은",
+    "kind": "natural",
+    "weight": 18,
+    "recipe": {}
+  },
+  {
+    "id": 17,
+    "name": "금",
+    "kind": "natural",
+    "weight": 12,
+    "recipe": {}
+  },
+  {
+    "id": 18,
+    "name": "진주",
+    "kind": "natural",
+    "weight": 11,
+    "recipe": {}
+  },
+  {
+    "id": 19,
+    "name": "토파즈",
+    "kind": "natural",
+    "weight": 9,
+    "recipe": {}
+  },
+  {
+    "id": 20,
+    "name": "루비",
+    "kind": "natural",
+    "weight": 5,
+    "recipe": {}
+  },
+  {
+    "id": 21,
+    "name": "사파이어",
+    "kind": "natural",
+    "weight": 4,
+    "recipe": {}
+  },
+  {
+    "id": 22,
+    "name": "에메랄드",
+    "kind": "natural",
+    "weight": 4,
+    "recipe": {}
+  },
+  {
+    "id": 23,
+    "name": "다이아몬드",
+    "kind": "natural",
+    "weight": 2,
+    "recipe": {}
+  },
+  {
+    "id": 24,
+    "name": "실",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "5": 2
+    }
+  },
+  {
+    "id": 25,
+    "name": "천",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "24": 2
+    }
+  },
+  {
+    "id": 26,
+    "name": "밧줄",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "6": 2
+    }
+  },
+  {
+    "id": 27,
+    "name": "종이",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "3": 2,
+      "2": 1
+    }
+  },
+  {
+    "id": 28,
+    "name": "종이 상자",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "27": 3
+    }
+  },
+  {
+    "id": 29,
+    "name": "가죽끈",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "7": 1
+    }
+  },
+  {
+    "id": 30,
+    "name": "나무판자",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "1": 3
+    }
+  },
+  {
+    "id": 31,
+    "name": "나무 액자",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "30": 2,
+      "29": 1
+    }
+  },
+  {
+    "id": 32,
+    "name": "유리",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "10": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 33,
+    "name": "벽돌",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "11": 2,
+      "9": 1,
+      "13": 1
+    }
+  },
+  {
+    "id": 34,
+    "name": "철괴",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "14": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 35,
+    "name": "구리괴",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "15": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 36,
+    "name": "나무 상자",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "30": 3,
+      "26": 1
+    }
+  },
+  {
+    "id": 37,
+    "name": "은괴",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "16": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 38,
+    "name": "금괴",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "17": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 39,
+    "name": "밀짚모자",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "4": 3,
+      "24": 1
+    }
+  },
+  {
+    "id": 40,
+    "name": "가죽 장갑",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "7": 2,
+      "24": 1
+    }
+  },
+  {
+    "id": 41,
+    "name": "조개 목걸이",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "12": 2,
+      "24": 1
+    }
+  },
+  {
+    "id": 42,
+    "name": "종이비행기",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "27": 1
+    }
+  },
+  {
+    "id": 43,
+    "name": "깃펜",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "8": 1,
+      "1": 1
+    }
+  },
+  {
+    "id": 44,
+    "name": "편지",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "27": 1,
+      "43": 1
+    }
+  },
+  {
+    "id": 45,
+    "name": "유리병",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "32": 2,
+      "13": 1
+    }
+  },
+  {
+    "id": 46,
+    "name": "거울",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "32": 1,
+      "37": 1
+    }
+  },
+  {
+    "id": 47,
+    "name": "돋보기",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "32": 1,
+      "35": 1
+    }
+  },
+  {
+    "id": 48,
+    "name": "가위",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "34": 2,
+      "35": 1
+    }
+  },
+  {
+    "id": 49,
+    "name": "열쇠",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "35": 1
+    }
+  },
+  {
+    "id": 50,
+    "name": "자물쇠",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "34": 1,
+      "49": 1
+    }
+  },
+  {
+    "id": 51,
+    "name": "낚싯대",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "1": 1,
+      "24": 1,
+      "34": 1
+    }
+  },
+  {
+    "id": 52,
+    "name": "부채",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "27": 2,
+      "1": 1
+    }
+  },
+  {
+    "id": 53,
+    "name": "우산",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "25": 2,
+      "1": 2,
+      "34": 1
+    }
+  },
+  {
+    "id": 54,
+    "name": "가죽 가방",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "7": 2,
+      "29": 1,
+      "24": 1
+    }
+  },
+  {
+    "id": 55,
+    "name": "팔찌",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "35": 1,
+      "21": 1
+    }
+  },
+  {
+    "id": 56,
+    "name": "진주 목걸이",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "18": 2,
+      "24": 1
+    }
+  },
+  {
+    "id": 57,
+    "name": "토파즈 반지",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "38": 1,
+      "19": 1
+    }
+  },
+  {
+    "id": 58,
+    "name": "루비 반지",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "38": 1,
+      "20": 1
+    }
+  },
+  {
+    "id": 59,
+    "name": "사파이어 귀걸이",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "37": 1,
+      "21": 2
+    }
+  },
+  {
+    "id": 60,
+    "name": "에메랄드 목걸이",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "38": 1,
+      "22": 2,
+      "24": 1
+    }
+  },
+  {
+    "id": 61,
+    "name": "다이아몬드 왕관",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "38": 2,
+      "23": 2,
+      "37": 1
+    }
+  },
+  {
+    "id": 62,
+    "name": "명예의 훈장",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "38": 30,
+      "57": 1,
+      "58": 1,
+      "59": 1,
+      "25": 40,
+      "37": 8,
+      "34": 8
+    }
+  },
+  {
+    "id": 63,
+    "name": "우승 트로피",
+    "kind": "crafted",
+    "weight": 0,
+    "recipe": {
+      "62": 1,
+      "38": 8,
+      "61": 1,
+      "60": 1,
+      "30": 24,
+      "32": 16
+    }
+  }
+]
