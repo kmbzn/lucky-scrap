@@ -203,3 +203,7 @@ GitHub의 main에 push하면 연결된 Vercel 프로젝트가 자동 배포합�
 6. 환경변수 변경 뒤 Redeploy하고 실제 카카오 계정으로 로그인 → 닉네임 설정 → 새로고침 세션 유지 → 로그아웃을 확인합니다.
 
 2026-10-17 확인 시 Supabase Auth의 공개 settings 응답에서 Kakao provider가 비활성화된 상태였습니다. 실제 OAuth 성공은 provider 활성화와 올바른 카카오 앱 설정 후 검증해야 합니다.
+
+### Kakao KOE205 대응
+
+로그인 요청은 `queryParams: { scope: "profile_nickname" }`로 닉네임만 요청합니다. Supabase의 Kakao provider는 `scopes` 옵션을 쓰면 기본 이메일·사진 항목에 추가하므로 단수 `scope` query parameter로 기본값을 덮어씁니다. 실제 Supabase 인가 리다이렉트에서 요청 scope가 `profile_nickname`만 남는 것을 확인했습니다. Kakao Developers에서 **카카오 로그인 → 동의항목 → 프로필 정보(닉네임)**을 사용하도록 설정하고, Supabase의 **Allow users without an email**을 켜야 합니다. 이메일·프로필 사진 동의는 이 게임에 필요하지 않습니다.

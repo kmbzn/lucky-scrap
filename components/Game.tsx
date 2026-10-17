@@ -214,7 +214,11 @@ export default function Game() {
         );
       const { error } = await browserClient().auth.signInWithOAuth({
         provider: "kakao",
-        options: { redirectTo: `${location.origin}/auth/callback` },
+        options: {
+          redirectTo: `${location.origin}/auth/callback`,
+          // Supabase Kakao appends `scopes`; singular `scope` overrides its defaults.
+          queryParams: { scope: "profile_nickname" },
+        },
       });
       if (error) throw error;
     });
