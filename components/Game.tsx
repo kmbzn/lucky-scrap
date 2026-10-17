@@ -7,6 +7,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   ArrowRight,
@@ -73,14 +74,14 @@ function Art({
   const discovered = useContext(DiscoveryContext);
   if (!reveal && !discovered.has(id))
     return (
-      <span
+      <img
         className="item-art unknown-item"
-        role="img"
-        aria-label="???"
-        style={{ width: size, height: size }}
-      >
-        ???
-      </span>
+        src="/unknown-item.svg"
+        alt="???"
+        width={size}
+        height={size}
+        draggable={false}
+      />
     );
   return (
     <img
@@ -93,9 +94,24 @@ function Art({
     />
   );
 }
+function subscribeTab(onChange: () => void) {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+function currentTab(): Tab {
+  const value = new URLSearchParams(window.location.hash.slice(1)).get("tab");
+  return tabs.find((entry) => entry.name === value)?.name ?? "뽑기";
+}
+function setTab(tab: Tab) {
+  window.location.hash = new URLSearchParams({ tab }).toString();
+}
 export default function Game() {
-  const [tab, setTab] = useState<Tab>("뽑기"),
-    [state, setState] = useState<State | null>(null),
+  const tab = useSyncExternalStore(
+    subscribeTab,
+    currentTab,
+    () => "뽑기" as Tab,
+  );
+  const [state, setState] = useState<State | null>(null),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
     [search, setSearch] = useState(""),
@@ -356,20 +372,27 @@ export default function Game() {
       setNotice(`${items[id].name} ${quantity}개를 만들었어요!`);
     });
   }
-  const displayed = items.filter(
-    (i) =>
-      matchesItem(i.id, search, discovered) &&
-      (tab === "조합" ? i.id >= 24 : true) &&
-      (filter === "자연물"
-        ? i.kind === "natural"
-        : filter === "제작품"
-          ? i.kind === "crafted"
-          : filter === "보유 중"
-            ? (inventory[i.id] || 0) > 0
-            : filter === "제작 가능"
-              ? i.id >= 24 && maxCraft(i.id, inventory) > 0
-              : true),
-  );
+  const displayed = items
+    .filter(
+      (i) =>
+        matchesItem(i.id, search, discovered) &&
+        (tab === "조합" ? i.id >= 24 : true) &&
+        (filter === "자연물"
+          ? i.kind === "natural"
+          : filter === "제작품"
+            ? i.kind === "crafted"
+            : filter === "보유 중"
+              ? (inventory[i.id] || 0) > 0
+              : filter === "제작 가능"
+                ? i.id >= 24 && maxCraft(i.id, inventory) > 0
+                : true),
+    )
+    .sort((a, b) =>
+      tab === "조합"
+        ? Number(maxCraft(b.id, inventory) > 0) -
+            Number(maxCraft(a.id, inventory) > 0) || a.id - b.id
+        : a.id - b.id,
+    );
   function changeTab(t: Tab) {
     setTab(t);
     setDetail(null);
@@ -432,7 +455,7 @@ export default function Game() {
                   <div className="row">
                     <div>
                       <span className="eyebrow">뽑기</span>
-                      <h2>자연물 뽑기</h2>
+                      <h2>아이템 뽑기</h2>
                     </div>
                     <span className="badge">횟수 제한 없음</span>
                   </div>
@@ -541,11 +564,16 @@ export default function Game() {
                           className={`codex-cell ${discovered.has(i.id) ? "found" : ""}`}
                           key={i.id}
                           onClick={() => setDetail(i.id)}
-                          aria-label={`${name(i.id)}, ${discovered.has(i.id) ? "획득" : "미발견"}`}
+                          aria-label={`${name(i.id)}, ${discovered.has(i.id) ? "획득" : "미발견"}, 보유 ${amount(i.id)}개`}
                         >
                           <small>{String(i.id).padStart(3, "0")}</small>
-                          <Art id={i.id} size={38} />
-                          <span>{name(i.id)}</span>
+                          <div className="codex-art">
+                            <Art id={i.id} size={38} />
+                            <strong className="codex-quantity">
+                              {amount(i.id)}
+                            </strong>
+                          </div>
+                          <span className="codex-name">{name(i.id)}</span>
                         </button>
                       ))}
                     </div>
@@ -819,7 +847,7 @@ export default function Game() {
                     <button
                       className="menu-row"
                       onClick={() => {
-                        setTab("장터");
+                        changeTab("장터");
                         setTimeout(() => setFilter("거래 기록"), 0);
                       }}
                     >

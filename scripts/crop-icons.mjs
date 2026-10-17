@@ -17,6 +17,7 @@ const meta = await sharp(target).metadata();
 if (meta.width !== 1254 || meta.height !== 1254 || meta.channels !== 4) {
   throw new Error("원본 이미지는 1254×1254 RGBA여야 합니다.");
 }
+const padding = 12;
 const edges = [0, 157, 314, 470, 627, 784, 940, 1097, 1254];
 for (let id = 0; id < 64; id++) {
   const col = id % 8;
@@ -28,6 +29,13 @@ for (let id = 0; id < 64; id++) {
       width: edges[col + 1] - edges[col],
       height: edges[row + 1] - edges[row],
     })
+    .extend({
+      top: padding,
+      bottom: padding,
+      left: padding,
+      right: padding,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(
       path.join(root, `public/item-icons/${String(id).padStart(3, "0")}.png`),
@@ -38,7 +46,9 @@ const blank = await sharp(path.join(root, "public/item-icons/000.png"))
   .toBuffer();
 for (let p = 3; p < blank.length; p += 4)
   if (blank[p] !== 0) throw new Error("000은 완전 투명해야 합니다.");
-console.log("64 icons cropped with original RGBA pixels preserved.");
+console.log(
+  "64 icons cropped with transparent safety padding; original RGBA pixels preserved.",
+);
 
 // App branding uses the original 002 leaf crop; source sprite pixels stay untouched.
 const leaf = path.join(root, "public/item-icons/002.png");

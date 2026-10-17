@@ -22,13 +22,13 @@ test("64 items, 23 natural weights total 1000, 40 exact recipes", () => {
   }
 });
 test("recursive gold balance and craft availability", () => {
-  assert.equal(baseMaterials(62)["17"], 64);
-  assert.equal(baseMaterials(63)["17"], 86);
-  assert.equal(maxCraft(24, { "5": 5 }), 2);
+  assert.equal(baseMaterials(62)["17"], 138);
+  assert.equal(baseMaterials(63)["17"], 336);
+  assert.equal(maxCraft(24, { "5": 5 }), 1);
   assert.equal(maxCraft(24, {}), 0);
-  assert.deepEqual(baseMaterials(25), { "5": 4 });
+  assert.deepEqual(baseMaterials(25), { "5": 9 });
 });
-test("original file preserved and 64 crops retain exact RGBA pixels", async () => {
+test("original file preserved and 64 padded crops retain exact RGBA pixels", async () => {
   assert.deepEqual(
     await readFile("items.png"),
     await readFile("public/items.png"),
@@ -52,8 +52,8 @@ test("original file preserved and 64 crops retain exact RGBA pixels", async () =
     )
       .raw()
       .toBuffer({ resolveWithObject: true });
-    assert.equal(crop.info.width, edges[x + 1] - edges[x]);
-    assert.equal(crop.info.height, edges[y + 1] - edges[y]);
+    assert.equal(crop.info.width, edges[x + 1] - edges[x] + 24);
+    assert.equal(crop.info.height, edges[y + 1] - edges[y] + 24);
     const expected = await original
       .clone()
       .extract({
@@ -64,7 +64,25 @@ test("original file preserved and 64 crops retain exact RGBA pixels", async () =
       })
       .raw()
       .toBuffer();
-    assert.deepEqual(crop.data, expected);
+    const interior = await sharp(crop.data, { raw: crop.info })
+      .extract({
+        left: 12,
+        top: 12,
+        width: edges[x + 1] - edges[x],
+        height: edges[y + 1] - edges[y],
+      })
+      .raw()
+      .toBuffer();
+    assert.deepEqual(interior, expected);
+    for (let row = 0; row < crop.info.height; row++)
+      for (let col = 0; col < crop.info.width; col++)
+        if (
+          row < 12 ||
+          col < 12 ||
+          row >= crop.info.height - 12 ||
+          col >= crop.info.width - 12
+        )
+          assert.equal(crop.data[(row * crop.info.width + col) * 4 + 3], 0);
     if (id === 0)
       for (let i = 3; i < crop.data.length; i += 4)
         assert.equal(crop.data[i], 0);
@@ -80,4 +98,13 @@ test("any drawing including one tap is accepted; empty or out-of-bounds input re
     strokesSchema.safeParse([[{ x: 400, y: 10, t: 0 }]]).success,
     false,
   );
+});
+
+test("requested recipe costs and craft thresholds", () => {
+  assert.deepEqual(items[26].recipe, { "6": 4 });
+  assert.deepEqual(items[29].recipe, { "7": 3 });
+  assert.deepEqual(items[43].recipe, { "1": 2, "8": 2 });
+  assert.equal(maxCraft(26, { "6": 3 }), 0);
+  assert.equal(maxCraft(26, { "6": 8 }), 2);
+  assert.equal(maxCraft(43, { "1": 2, "8": 1 }), 0);
 });

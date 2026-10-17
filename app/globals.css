@@ -283,6 +283,9 @@ h3 {
   top: 135px;
 }
 .item-art {
+  display: inline-block;
+  vertical-align: middle;
+  aspect-ratio: 1;
   object-fit: contain;
   image-rendering: pixelated;
   flex-shrink: 0;
@@ -1384,4 +1387,45 @@ button {
   font-size: 14px;
   color: #a16c48;
   line-height: 1.6;
+}
+
+.codex-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+.codex-art .item-art {
+  display: block;
+  width: 100% !important;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+}
+.codex-quantity {
+  position: absolute;
+  right: 1px;
+  bottom: 0;
+  color: #000;
+  font:
+    700 18px/1 Arial,
+    sans-serif;
+  letter-spacing: -1px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-shadow:
+    0 1px 2px #fff,
+    1px 0 2px #fff;
+}
+.codex-cell > .codex-name {
+  font-size: 8px;
+  letter-spacing: -0.6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  line-height: 1.3;
+  padding-inline: 1px;
+}
+.unknown-item {
+  object-fit: contain;
+  image-rendering: pixelated;
 }
