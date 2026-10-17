@@ -581,26 +581,27 @@ export default function Game() {
                           </div>
                           <div className="craft-actions">
                             <button
-                              disabled={
-                                busy || !state || maxCraft(i.id, inventory) < 1
-                              }
+                              disabled={busy || !state}
                               onClick={() => void craft(i.id, 1)}
                             >
                               1개 제작
                             </button>
                             <button
-                              disabled={
-                                busy || !state || maxCraft(i.id, inventory) < 1
-                              }
+                              disabled={busy || !state}
                               onClick={() =>
                                 void craft(
                                   i.id,
-                                  Math.min(1000000, maxCraft(i.id, inventory)),
+                                  Math.max(
+                                    1,
+                                    Math.min(
+                                      1000000,
+                                      maxCraft(i.id, inventory),
+                                    ),
+                                  ),
                                 )
                               }
                             >
-                              가능한 만큼 ·{" "}
-                              {Math.min(1000000, maxCraft(i.id, inventory))}개
+                              가능한 만큼 제작
                             </button>
                           </div>
                         </article>
@@ -1052,7 +1053,7 @@ export default function Game() {
                   </div>
                   <button
                     className="primary"
-                    disabled={busy || !state || maxCraft(detail, inventory) < 1}
+                    disabled={busy || !state}
                     onClick={() => void craft(detail, 1)}
                   >
                     <Hammer size={18} />
