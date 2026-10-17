@@ -581,13 +581,17 @@ export default function Game() {
                           </div>
                           <div className="craft-actions">
                             <button
-                              disabled={busy || !state}
+                              disabled={
+                                busy || !state || maxCraft(i.id, inventory) < 1
+                              }
                               onClick={() => void craft(i.id, 1)}
                             >
                               1개 제작
                             </button>
                             <button
-                              disabled={busy || !state}
+                              disabled={
+                                busy || !state || maxCraft(i.id, inventory) < 1
+                              }
                               onClick={() =>
                                 void craft(
                                   i.id,
@@ -1053,7 +1057,7 @@ export default function Game() {
                   </div>
                   <button
                     className="primary"
-                    disabled={busy || !state}
+                    disabled={busy || !state || maxCraft(detail, inventory) < 1}
                     onClick={() => void craft(detail, 1)}
                   >
                     <Hammer size={18} />
