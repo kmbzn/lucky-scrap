@@ -31,7 +31,12 @@ import {
   X,
 } from "lucide-react";
 import { rewardColors } from "@/lib/reward-colors";
-import { items, icon, maxCraft } from "@/lib/items";
+import {
+  items as defaultItems,
+  icon,
+  maxCraft as catalogMaxCraft,
+  type Item,
+} from "@/lib/items";
 import { itemName, matchesItem } from "@/lib/discovery";
 import { itemDescriptions } from "@/lib/item-descriptions";
 import { browserClient, configured } from "@/lib/supabase";
@@ -50,6 +55,7 @@ type Offer = {
   trade_offer_lines: { side: string; item_id: number; quantity: number }[];
 };
 type State = {
+  items: Item[];
   userId: string;
   profile: { nickname: string | null };
   inventory: { item_id: number; quantity: string }[];
@@ -91,7 +97,7 @@ function Art({
       src={icon(id)}
       width={size}
       height={size}
-      alt={items[id].name}
+      alt={defaultItems[id].name}
       draggable={false}
     />
   );
@@ -134,6 +140,9 @@ export default function Game() {
     [offerItem, setOfferItem] = useState(1),
     [offerQty, setOfferQty] = useState(1),
     [offerSide, setOfferSide] = useState("give");
+  const items = state?.items ?? defaultItems;
+  const maxCraft = (id: number, inventory: Record<string, number>) =>
+    catalogMaxCraft(id, inventory, items);
   const pendingRequests = useRef(new Map<string, string>());
   const board = useRef<WritingBoardHandle>(null);
   const inventory = Object.fromEntries(

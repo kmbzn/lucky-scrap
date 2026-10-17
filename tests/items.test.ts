@@ -22,11 +22,13 @@ test("64 items, 23 natural weights total 1000, 40 exact recipes", () => {
   }
 });
 test("recursive gold balance and craft availability", () => {
-  assert.equal(baseMaterials(62)["17"], 138);
-  assert.equal(baseMaterials(63)["17"], 336);
-  assert.equal(maxCraft(24, { "5": 5 }), 1);
+  assert.equal(baseMaterials(62)["17"], 16);
+  assert.equal(baseMaterials(63)["17"], 30);
+  assert.equal(baseMaterials(63)["22"], undefined);
+  assert.equal(baseMaterials(63)["18"], 1);
+  assert.equal(maxCraft(24, { "5": 5 }), 2);
   assert.equal(maxCraft(24, {}), 0);
-  assert.deepEqual(baseMaterials(25), { "5": 9 });
+  assert.deepEqual(baseMaterials(25), { "5": 4 });
 });
 test("all 64 editable icons use a transparent 48px grid", async () => {
   assert.equal(
@@ -72,10 +74,21 @@ test("any drawing including one tap is accepted; empty or out-of-bounds input re
 });
 
 test("requested recipe costs and craft thresholds", () => {
-  assert.deepEqual(items[26].recipe, { "6": 4 });
-  assert.deepEqual(items[29].recipe, { "7": 3 });
-  assert.deepEqual(items[43].recipe, { "1": 2, "8": 2 });
-  assert.equal(maxCraft(26, { "6": 3 }), 0);
-  assert.equal(maxCraft(26, { "6": 8 }), 2);
-  assert.equal(maxCraft(43, { "1": 2, "8": 1 }), 0);
+  assert.deepEqual(items[26].recipe, { "6": 2 });
+  assert.deepEqual(items[29].recipe, { "7": 1 });
+  assert.deepEqual(items[43].recipe, { "1": 1, "8": 1 });
+  assert.equal(maxCraft(26, { "6": 1 }), 0);
+  assert.equal(maxCraft(26, { "6": 4 }), 2);
+  assert.equal(maxCraft(43, { "1": 1, "8": 0 }), 0);
+});
+
+test("craft availability follows the loaded database recipe instead of bundled costs", () => {
+  const catalog = items.map((item) => ({
+    ...item,
+    recipe: { ...item.recipe },
+  }));
+  catalog[38].recipe = { "17": 5 };
+  assert.equal(maxCraft(38, { "17": 4 }, catalog), 0);
+  assert.equal(maxCraft(38, { "17": 10 }, catalog), 2);
+  assert.equal(maxCraft(38, { "17": 4 }), 2);
 });

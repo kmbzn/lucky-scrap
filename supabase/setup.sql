@@ -40,7 +40,9 @@ begin
   if exists(select 1 from draw_challenges where user_id=actor and status='verifying' and verifying_at>now()-interval '30 seconds' and expires_at>now()) then raise exception '인증을 확인 중입니다. 잠시 기다려 주세요'; end if;
   update draw_challenges set status='failed' where user_id=actor and status='verifying';
   update draw_challenges set status='failed' where user_id=actor and status='pending';
-  letter:=substr('가나다라마바사아자차카타파하구누두루무부수우주추쿠투푸후',1+get_byte(gen_random_bytes(1),0)%28,1);
+  -- Reject 240..255 so each of the 40 letters has equal probability.
+  loop roll:=get_byte(gen_random_bytes(1),0); exit when roll<240; end loop;
+  letter:=substr('가나다라마거너더러머버서어저고노도로모보소오조구누두루무부수우주아바사자하허호배',1+roll%40,1);
   insert into draw_challenges(user_id,letter) values(actor,letter) returning * into c; output=to_jsonb(c);
  elsif action='claim' then
   select * into c from draw_challenges where id=(payload->>'id')::uuid and user_id=actor for update;
@@ -218,3 +220,165 @@ begin
 end $$;
 revoke execute on function public.set_nickname(text) from public,anon;
 grant execute on function public.set_nickname(text) to authenticated;
+
+-- Update draw weights; total remains 1000 (100%).
+update public.items as item
+set weight = configured.weight
+from (values
+  (0, 0),
+  (1, 101),
+  (2, 91),
+  (3, 81),
+  (4, 91),
+  (5, 81),
+  (6, 70),
+  (7, 50),
+  (8, 60),
+  (9, 70),
+  (10, 50),
+  (11, 50),
+  (12, 50),
+  (13, 40),
+  (14, 30),
+  (15, 30),
+  (16, 20),
+  (17, 10),
+  (18, 10),
+  (19, 5),
+  (20, 4),
+  (21, 3),
+  (22, 2),
+  (23, 1),
+  (24, 0),
+  (25, 0),
+  (26, 0),
+  (27, 0),
+  (28, 0),
+  (29, 0),
+  (30, 0),
+  (31, 0),
+  (32, 0),
+  (33, 0),
+  (34, 0),
+  (35, 0),
+  (36, 0),
+  (37, 0),
+  (38, 0),
+  (39, 0),
+  (40, 0),
+  (41, 0),
+  (42, 0),
+  (43, 0),
+  (44, 0),
+  (45, 0),
+  (46, 0),
+  (47, 0),
+  (48, 0),
+  (49, 0),
+  (50, 0),
+  (51, 0),
+  (52, 0),
+  (53, 0),
+  (54, 0),
+  (55, 0),
+  (56, 0),
+  (57, 0),
+  (58, 0),
+  (59, 0),
+  (60, 0),
+  (61, 0),
+  (62, 0),
+  (63, 0)
+) as configured(id, weight)
+where item.id = configured.id;
+
+-- Lower crafting costs and replace removed ingredients atomically.
+begin;
+delete from public.recipe_inputs where result_id in (27,37,38,56,59,60,62,63);
+insert into public.recipe_inputs(result_id,item_id,quantity) values (27,3,2),(27,2,2),(37,16,2),(38,17,2),(56,18,1),(56,38,2),(59,21,2),(59,38,1),(60,22,1),(60,38,2),(62,38,12),(62,57,1),(62,58,1),(62,59,1),(62,25,15),(62,37,4),(62,34,4),(63,62,1),(63,38,4),(63,61,1),(63,60,1),(63,30,10),(63,32,6);
+commit;
+
+-- Reduce excessive crafting costs; preserve inventories and draw weights.
+begin;
+delete from public.recipe_inputs where result_id in (24,25,26,28,29,30,31,32,33,34,35,36,39,40,41,43,45,48,52,53,54,55,57,58,61,62,63);
+insert into public.recipe_inputs(result_id,item_id,quantity) values
+(24,5,2),
+(25,24,2),
+(26,6,2),
+(28,27,2),
+(29,7,1),
+(30,1,2),
+(31,30,2),
+(31,29,2),
+(32,10,2),
+(32,13,2),
+(33,11,2),
+(33,9,2),
+(33,13,2),
+(34,14,2),
+(34,13,2),
+(35,15,2),
+(35,13,2),
+(36,30,2),
+(36,26,2),
+(39,4,2),
+(39,24,2),
+(40,7,2),
+(40,24,2),
+(41,12,2),
+(41,24,2),
+(43,8,1),
+(43,1,1),
+(45,32,2),
+(45,13,2),
+(48,34,2),
+(48,35,2),
+(52,27,2),
+(52,1,2),
+(53,25,2),
+(53,1,2),
+(53,34,2),
+(54,7,2),
+(54,29,2),
+(54,24,2),
+(55,35,1),
+(55,21,1),
+(57,38,1),
+(57,19,1),
+(58,38,1),
+(58,20,1),
+(61,38,2),
+(61,23,1),
+(61,37,1),
+(62,38,5),
+(62,57,1),
+(62,58,1),
+(62,59,1),
+(62,25,5),
+(62,37,2),
+(62,34,2),
+(63,62,1),
+(63,38,2),
+(63,61,1),
+(63,60,1),
+(63,30,5),
+(63,32,3);
+commit;
+
+-- Raise only the trophy gold ingot cost from 2 to 5.
+update public.recipe_inputs set quantity = 5 where result_id = 63 and item_id = 38;
+
+-- Set trophy gold ingots to 3: recursive natural gold cost is 30.
+update public.recipe_inputs set quantity = 3 where result_id = 63 and item_id = 38;
+
+-- Replace the trophy emerald necklace with a more accessible pearl necklace.
+begin;
+delete from public.recipe_inputs where result_id = 63 and item_id = 60;
+insert into public.recipe_inputs(result_id,item_id,quantity) values (63,56,1)
+on conflict (result_id,item_id) do update set quantity = excluded.quantity;
+commit;
+
+-- Keep total draw weight at 1000.
+update public.items as item set weight = configured.weight
+from (values (1,80),(2,90),(3,90),(4,104)) as configured(id,weight)
+where item.id = configured.id;

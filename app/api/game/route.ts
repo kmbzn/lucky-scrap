@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { waitForDraw } from "@/lib/draw";
 import { assertDiscoveredTrade } from "@/lib/trade-discovery";
 import { sessionClient, adminClient } from "@/lib/server";
+import { type Item } from "@/lib/items";
 import { strokesSchema } from "@/lib/handwriting";
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -85,10 +86,20 @@ export async function GET(request: Request) {
         .order("created_at", { ascending: false })
         .order("id")
         .limit(100),
+      db.from("items").select("id,name,kind,weight").order("id"),
+      db.from("recipe_inputs").select("result_id,item_id,quantity"),
     ]);
     for (const r of results) if (r.error) throw new Error(r.error.message);
     return NextResponse.json(
       {
+        items: results[4].data!.map((item): Item => ({
+          ...item,
+          recipe: Object.fromEntries(
+            results[5]
+              .data!.filter((row) => row.result_id === item.id)
+              .map((row) => [String(row.item_id), row.quantity]),
+          ),
+        })),
         userId: user.id,
         profile: results[0].data,
         inventory: results[1].data,

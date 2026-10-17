@@ -9,9 +9,13 @@ export type Item = {
 export const items: Item[] = data as unknown as Item[];
 export const icon = (id: number) =>
   `/item-icons/${String(id).padStart(3, "0")}.png`;
-export function maxCraft(id: number, inventory: Record<string, number>) {
+export function maxCraft(
+  id: number,
+  inventory: Record<string, number>,
+  catalog: Item[] = items,
+) {
   return Math.min(
-    ...Object.entries(items[id].recipe).map(([key, n]) =>
+    ...Object.entries(catalog[id].recipe).map(([key, n]) =>
       Math.floor((inventory[key] || 0) / n),
     ),
   );
